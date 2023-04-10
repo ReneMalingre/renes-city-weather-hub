@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>René's City Weather Hub</title>
+    <meta
+      name="description"
+      content="Get a 5-day weather forecast for your favourite city."
+    />
+    <!-- Bootstrap CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <!-- SVG use covered by Pro license -->
+    <!--Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+  </head>
+
+  <body class="d-flex flex-column min-vh-100">
+    <header>
+      <!-- Bootstrap Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary bg-opacity-75">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">René's City Weather Hub</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <!-- put navigation elements here-->
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- contains the Cities search panel -->
+        <div
+          class="col container col-12 col-sm-12 col-md-4 col-lg-3"
+          id="cities-search-panel"
+        >
+          <!-- search form to find a city -->
+          <form class="mb-2">
+            <div class="mb-1">
+              <label
+                for="input-search-city"
+                class="form-label fw-semibold fs-5 mb-1"
+                >Search for a City:</label
+              >
+              <div id="search-city-help" class="form-text m-0">
+                Enter the full name of the city.
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                id="input-search-city"
+                aria-describedby="search-city-help"
+              />
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+          </form>
+          <div class="border-top" id="city-list">
+            <!-- display the name of the list of cities, defaulting to Search History -->
+            <div class="container mx-0 px-0">
+              <div class="d-flex justify-content-between align-items-baseline">
+                <p
+                  class="fw-semibold fs-5 text-success mb-1 mx-0"
+                  id="current-city-list-name"
+                >
+                  Search History
+                </p>
+                <div class="nav-item dropdown mx-1 mb-1">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    List
+                  </a>
+                  <!-- allow user to select from different city lists -->
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item" href="#">Search History</a>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li><a class="dropdown-item" href="#">Home City</a></li>
+                    <li><a class="dropdown-item" href="#">Favourites</a></li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#">Australian Capitals</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#">New Zealand Cities</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#">Major World Cities</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- display the list of cities here -->
+              <div
+                class="row d-flex justify-content-between align-items-start px-0 mx-0 mt-2"
+              >
+                <div class="col list-group pe-1">
+                  <div
+                    class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action bg-light px-1 mx-0 fs-6"
+                  >
+                    ⭐ Adelaide
+                    <span class="badge bg-success rounded-pill">19</span>
+                  </div>
+                  <div
+                    class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action active bg-success px-1 mx-0 fs-6"
+                    aria-current="true"
+                  >
+                    Perth<span class="badge bg-light text-success rounded-pill"
+                      >23</span
+                    >
+                  </div>
+                  <div
+                    class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action bg-light px-1 mx-0 fs-6"
+                  >
+                    Sydney <span class="badge bg-success rounded-pill">19</span>
+                  </div>
+                </div>
+                <div class="col" id="city-list-toolbars">
+                  <div
+                    class="btn-toolbar justify-content-end"
+                    role="toolbar"
+                    aria-label="Basic outlined example"
+                  >
+                    <button
+                      type="button"
+                      class="btn btn-outline-info custom-sml-btn"
+                    >
+                      ⭐
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-info custom-sml-btn"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                  <div
+                    class="btn-toolbar justify-content-end"
+                    role="toolbar"
+                    aria-label="Basic outlined example"
+                  >
+                    <button
+                      type="button"
+                      class="btn btn-outline-info custom-sml-btn"
+                    >
+                      ⭐
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger custom-sml-btn"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                  <div
+                    class="btn-toolbar justify-content-end"
+                    role="toolbar"
+                    aria-label="Basic outlined example"
+                  >
+                    <button
+                      type="button"
+                      class="btn btn-outline-info custom-sml-btn"
+                    >
+                      ⭐
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger custom-sml-btn"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- end of Cities search panel -->
+
+        <!-- contains the weather forecast panel -->
+        <div class="col container">
+          <div class="card my-2 mx-0" id="hero-city-weather-panel">
+            <div class="card-body">
+              <h5 class="card-title" id="hero-city-name-and-date">Adelaide</h5>
+              <p class="card-text">Forecast for Today, Monday, 10 April 2023</p>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li
+                class="list-group-item bg-primary bg-opacity-10"
+                id="hero-city-temps"
+              >
+                Temperature: min 10, max 23
+              </li>
+              <li
+                class="list-group-item bg-primary bg-opacity-10"
+                id="hero-city-wind"
+              >
+                Wind Conditions: blowy
+              </li>
+              <li
+                class="list-group-item bg-primary bg-opacity-10"
+                id="hero-city-humidity"
+              >
+                Humidity: 75%
+              </li>
+            </ul>
+          </div>
+          <!-- 5-day forecast for the hero city -->
+          <div
+            id="hero-city-forecast-panel"
+            class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 mx-0 mb-2 g-1 "
+          >
+            <div class="col">
+              <div id="5-day-forecast-day-1" class="card">
+                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div class="card-body">
+                  <div>Icon</div>
+                  <div>Temp</div>
+                  <div>Wind</div>
+                  <div>Humidity</div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div id="5-day-forecast-day-2" class="card">
+                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div class="card-body">
+                  <div>Icon</div>
+                  <div>Temp</div>
+                  <div>Wind</div>
+                  <div>Humidity</div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div id="5-day-forecast-day-3" class="card">
+                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div class="card-body">
+                  <div>Icon</div>
+                  <div>Temp</div>
+                  <div>Wind</div>
+                  <div>Humidity</div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div id="5-day-forecast-day-4" class="card">
+                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div class="card-body">
+                  <div>Icon</div>
+                  <div>Temp</div>
+                  <div>Wind</div>
+                  <div>Humidity</div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div id="5-day-forecast-day-5" class="card">
+                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div class="card-body">
+                  <div>Icon</div>
+                  <div>Temp</div>
+                  <div>Wind</div>
+                  <div>Humidity</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- end of the weather forecast panel -->
+      </div>
+    </div>
+
+    <footer class="text-bg-primary bg-opacity-75 py-3 mt-auto">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-0">&copy; 2023 René Malingré</p>
+          </div>
+          <div class="col-md-6">
+            <ul class="list-inline mb-0 text-md-end">
+              <li class="list-inline-item">
+                <a
+                  class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                  href="https://openweathermap.org/"
+                  >Data from OpenWeather</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"
+    ></script>
+    <script src="./assets/js/script.js"></script>
+  </body>
+</html>

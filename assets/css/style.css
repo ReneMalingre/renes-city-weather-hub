@@ -1,0 +1,40 @@
+:root{
+    --favourite-color: #ff0;
+    --favourite-background: #a6c8ff;
+    --city-list-height: 2.6rem;
+    --active-list-item-background-hover: #28a74540;
+}
+
+.list-group-item{
+    height: var(--city-list-height);
+}
+
+.btn-toolbar{
+    height: var(--city-list-height);
+}
+
+#city-list-toolbars{
+    display: none;
+    padding: 0;
+    flex: 0 0 84px !important;
+}
+
+.list-group-item-action{
+    cursor: pointer;
+}
+
+.list-group-item-action:not(.active):hover{
+    background-color: var(--active-list-item-background-hover) !important;
+}
+
+.custom-sml-btn{
+    padding: 3px 6px;
+    margin: 2px;
+}
+
+@media screen and (min-width: 330px) {
+    #city-list-toolbars{
+        display: block;
+    }
+}
+    
