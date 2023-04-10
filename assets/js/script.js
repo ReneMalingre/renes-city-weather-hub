@@ -9,7 +9,7 @@ function getLondonWeatherData() {
 };
 
 function getWeatherData(city, countryCode) {
-  const apiKey = 'ad514a1123c1e663f89399f0382f2c4b';
+  const apiKey = '';
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},${countryCode}&appid=${apiKey}`;
 
   fetch(url)
