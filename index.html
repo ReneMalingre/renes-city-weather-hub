@@ -49,33 +49,50 @@
       </nav>
     </header>
 
+    <!-- main content -->
     <div class="container-fluid">
+      <!-- one row, two columns -->
       <div class="row">
         <!-- contains the Cities search panel -->
-        <div
-          class="col container col-12 col-sm-12 col-md-4 col-lg-3"
-          id="cities-search-panel"
-        >
+        <div class="col container col-12 col-sm-12 col-md-4 col-lg-3"
+          id="cities-search-panel">
           <!-- search form to find a city -->
           <form class="mb-2">
             <div class="mb-1">
               <label
                 for="input-search-city"
-                class="form-label fw-semibold fs-5 mb-1"
+                class="form-label fw-semibold fs-6 mb-1"
                 >Search for a City:</label
               >
               <div id="search-city-help" class="form-text m-0">
                 Enter the full name of the city.
               </div>
+
               <input
                 type="text"
                 class="form-control"
                 id="input-search-city"
                 aria-describedby="search-city-help"
               />
+
+              <select
+                class="form-select form-select-sm mt-1"
+                aria-label=".form-select-sm example"
+                id="input-country"
+              >
+                <option selected>Choose the country</option>
+                <option value="AU">Australia</option>
+                <option value="NZ">New Zealand</option>
+              </select>
             </div>
             <div class="d-grid">
-              <button type="submit" class="btn btn-primary">Search</button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="search-city-btn"
+              >
+                Search
+              </button>
             </div>
           </form>
           <div class="border-top" id="city-list">
@@ -215,8 +232,19 @@
         <div class="col container">
           <div class="card my-2 mx-0" id="hero-city-weather-panel">
             <div class="card-body">
-              <h5 class="card-title" id="hero-city-name-and-date">Adelaide</h5>
-              <p class="card-text">Forecast for Today, Monday, 10 April 2023</p>
+                    <h5 class="card-title" id="hero-city-name"></h5>
+                    <p class="card-text" id="hero-city-date"></p>
+              <div class="d-flex justify-content-start align-items-baseline g-2">
+                    <img
+                      src=""
+                      class="weather-icon"
+                      alt=""
+                      id="hero-city-icon"
+                    />
+                    <p class="fw-bold fs-5" id="hero-city-description"></p>
+                    <p class="fs-6 fw-light fst-italic ps-5" id="hero-city-forecast-date"></p>
+               </div>
+              </div>
             </div>
             <ul class="list-group list-group-flush">
               <li
@@ -238,69 +266,95 @@
                 Humidity: 75%
               </li>
             </ul>
-          </div>
+
           <!-- 5-day forecast for the hero city -->
           <div
             id="hero-city-forecast-panel"
-            class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 mx-0 mb-2 g-1 "
+            class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 mt-2 mx-0 mb-2 g-1"
           >
             <div class="col">
               <div id="5-day-forecast-day-1" class="card">
-                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div
+                  class="card-header bg-success bg-opacity-25"
+                  id="5day-Date-1"
+                >
+                  Date
+                </div>
                 <div class="card-body">
-                  <div>Icon</div>
-                  <div>Temp</div>
-                  <div>Wind</div>
-                  <div>Humidity</div>
+                  <div class="forecast-icon">Icon</div>
+                  <div class="forecast-temp">Temp</div>
+                  <div class="forecast-wind">Wind</div>
+                  <div class="forecast-humidity">Humidity</div>
                 </div>
               </div>
             </div>
             <div class="col">
               <div id="5-day-forecast-day-2" class="card">
-                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div
+                  class="card-header bg-success bg-opacity-25"
+                  id="5day-Date-2"
+                >
+                  Date
+                </div>
                 <div class="card-body">
-                  <div>Icon</div>
-                  <div>Temp</div>
-                  <div>Wind</div>
-                  <div>Humidity</div>
+                  <div class="forecast-icon">Icon</div>
+                  <div class="forecast-temp">Temp</div>
+                  <div class="forecast-wind">Wind</div>
+                  <div class="forecast-humidity">Humidity</div>
                 </div>
               </div>
             </div>
             <div class="col">
               <div id="5-day-forecast-day-3" class="card">
-                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div
+                  class="card-header bg-success bg-opacity-25"
+                  id="5day-Date-3"
+                >
+                  Date
+                </div>
                 <div class="card-body">
-                  <div>Icon</div>
-                  <div>Temp</div>
-                  <div>Wind</div>
-                  <div>Humidity</div>
+                  <div class="forecast-icon">Icon</div>
+                  <div class="forecast-temp">Temp</div>
+                  <div class="forecast-wind">Wind</div>
+                  <div class="forecast-humidity">Humidity</div>
                 </div>
               </div>
             </div>
             <div class="col">
               <div id="5-day-forecast-day-4" class="card">
-                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div
+                  class="card-header bg-success bg-opacity-25"
+                  id="5day-Date-4"
+                >
+                  Date
+                </div>
                 <div class="card-body">
-                  <div>Icon</div>
-                  <div>Temp</div>
-                  <div>Wind</div>
-                  <div>Humidity</div>
+                  <div class="forecast-icon">Icon</div>
+                  <div class="forecast-temp">Temp</div>
+                  <div class="forecast-wind">Wind</div>
+                  <div class="forecast-humidity">Humidity</div>
                 </div>
               </div>
             </div>
             <div class="col">
               <div id="5-day-forecast-day-5" class="card">
-                <div class="card-header bg-success bg-opacity-25">Date</div>
+                <div
+                  class="card-header bg-success bg-opacity-25"
+                  id="5day-Date-5"
+                >
+                  Date
+                </div>
                 <div class="card-body">
-                  <div>Icon</div>
-                  <div>Temp</div>
-                  <div>Wind</div>
-                  <div>Humidity</div>
+                  <div class="forecast-icon">Icon</div>
+                  <div class="forecast-temp">Temp</div>
+                  <div class="forecast-wind">Wind</div>
+                  <div class="forecast-humidity">Humidity</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        </div>  
         <!-- end of the weather forecast panel -->
       </div>
     </div>
@@ -308,9 +362,18 @@
     <footer class="text-bg-primary bg-opacity-75 py-3 mt-auto">
       <div class="container">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <p class="mb-0">&copy; 2023 René Malingré</p>
           </div>
+          <!-- <div class="col">
+            <button
+              class="btn btn-outline-primary"
+              id="get-weather-button"
+              type="button"
+            >
+              Test
+            </button>
+          </div> -->
           <div class="col-md-6">
             <ul class="list-inline mb-0 text-md-end">
               <li class="list-inline-item">
@@ -325,6 +388,19 @@
         </div>
       </div>
     </footer>
+    <!-- Day.js Date Time API
+      https://day.js.org/
+      latest Day.js as of 6 April 2023 -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/dayjs@1.11.7/dayjs.min.js"
+      integrity="sha256-EfJOqCcshFS/2TxhArURu3Wn8b/XDA4fbPWKSwZ+1B8="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.4.min.js"
+      integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+      crossorigin="anonymous"
+    ></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"

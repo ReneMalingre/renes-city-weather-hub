@@ -32,6 +32,10 @@
     margin: 2px;
 }
 
+.weather-icon{
+    width: 5rem;
+}
+
 @media screen and (min-width: 330px) {
     #city-list-toolbars{
         display: block;
