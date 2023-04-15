@@ -67,7 +67,6 @@
               <div id="search-city-help" class="form-text m-0">
                 Enter the full name of the city.
               </div>
-
               <input
                 type="text"
                 class="form-control"
@@ -80,9 +79,6 @@
                 aria-label=".form-select-sm example"
                 id="input-country"
               >
-                <option selected>Choose the country</option>
-                <option value="AU">Australia</option>
-                <option value="NZ">New Zealand</option>
               </select>
             </div>
             <div class="d-grid">
@@ -105,7 +101,7 @@
                 >
                   Search History
                 </p>
-                <div class="nav-item dropdown mx-1 mb-1">
+                <div class="nav-item dropdown mx-1 mb-1" id="myDropdown">
                   <a
                     class="nav-link dropdown-toggle"
                     href="#"
@@ -123,7 +119,6 @@
                     <li>
                       <hr class="dropdown-divider" />
                     </li>
-                    <li><a class="dropdown-item" href="#">Home City</a></li>
                     <li><a class="dropdown-item" href="#">Favourites</a></li>
                     <li>
                       <hr class="dropdown-divider" />
@@ -135,7 +130,7 @@
                       <a class="dropdown-item" href="#">New Zealand Cities</a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="#">Major World Cities</a>
+                      <a class="dropdown-item" href="#">World Cities</a>
                     </li>
                   </ul>
                 </div>
@@ -144,88 +139,14 @@
               <div
                 class="row d-flex justify-content-between align-items-start px-0 mx-0 mt-2"
               >
-                <div class="col list-group pe-1">
-                  <div
-                    class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action bg-light px-1 mx-0 fs-6"
-                  >
-                    ⭐ Adelaide
-                    <span class="badge bg-success rounded-pill">19</span>
-                  </div>
-                  <div
-                    class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action active bg-success px-1 mx-0 fs-6"
-                    aria-current="true"
-                  >
-                    Perth<span class="badge bg-light text-success rounded-pill"
-                      >23</span
-                    >
-                  </div>
-                  <div
-                    class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action bg-light px-1 mx-0 fs-6"
-                  >
-                    Sydney <span class="badge bg-success rounded-pill">19</span>
-                  </div>
+                <div class="col list-group pe-1" id="searched-city-list">
                 </div>
                 <div class="col" id="city-list-toolbars">
-                  <div
-                    class="btn-toolbar justify-content-end"
-                    role="toolbar"
-                    aria-label="Basic outlined example"
-                  >
-                    <button
-                      type="button"
-                      class="btn btn-outline-info custom-sml-btn"
-                    >
-                      ⭐
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-info custom-sml-btn"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                  <div
-                    class="btn-toolbar justify-content-end"
-                    role="toolbar"
-                    aria-label="Basic outlined example"
-                  >
-                    <button
-                      type="button"
-                      class="btn btn-outline-info custom-sml-btn"
-                    >
-                      ⭐
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-danger custom-sml-btn"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                  <div
-                    class="btn-toolbar justify-content-end"
-                    role="toolbar"
-                    aria-label="Basic outlined example"
-                  >
-                    <button
-                      type="button"
-                      class="btn btn-outline-info custom-sml-btn"
-                    >
-                      ⭐
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-danger custom-sml-btn"
-                    >
-                      🗑️
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
         <!-- end of Cities search panel -->
 
         <!-- contains the weather forecast panel -->
@@ -234,15 +155,14 @@
             <div class="card-body">
                     <h5 class="card-title" id="hero-city-name"></h5>
                     <p class="card-text" id="hero-city-date"></p>
-              <div class="d-flex justify-content-start align-items-baseline g-2">
+              <div class="d-flex justify-content-start align-items-center flex-wrap text-center align-content-center">
                     <img
                       src=""
-                      class="weather-icon"
+                      class="weather-icon mx-2"
                       alt=""
                       id="hero-city-icon"
                     />
-                    <p class="fw-bold fs-5" id="hero-city-description"></p>
-                    <p class="fs-6 fw-light fst-italic ps-5" id="hero-city-forecast-date"></p>
+                    <p class="fw-bold fs-5 text-success mx-2" id="hero-city-description"></p>
                </div>
               </div>
             </div>
@@ -251,19 +171,16 @@
                 class="list-group-item bg-primary bg-opacity-10"
                 id="hero-city-temps"
               >
-                Temperature: min 10, max 23
               </li>
               <li
                 class="list-group-item bg-primary bg-opacity-10"
                 id="hero-city-wind"
               >
-                Wind Conditions: blowy
               </li>
               <li
                 class="list-group-item bg-primary bg-opacity-10"
                 id="hero-city-humidity"
               >
-                Humidity: 75%
               </li>
             </ul>
 

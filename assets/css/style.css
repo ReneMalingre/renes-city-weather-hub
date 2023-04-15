@@ -3,6 +3,11 @@
     --favourite-background: #a6c8ff;
     --city-list-height: 2.6rem;
     --active-list-item-background-hover: #28a74540;
+    --bootstrap-light: #f8f9fa;
+    --bootstrap-primary: #007bff;
+    --bootstrap-success: #28a745;
+    --bootstrap-success-50: #28a74588;
+    --bootstrap-success-25: #28a74544;
 }
 
 .list-group-item{
@@ -33,7 +38,10 @@
 }
 
 .weather-icon{
-    width: 5rem;
+    width: 8rem;
+    border: var(--bootstrap-success) 2px solid;
+    background-color: var(--bootstrap-success-25);
+    border-radius: 5px;
 }
 
 @media screen and (min-width: 330px) {
