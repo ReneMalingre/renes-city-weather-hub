@@ -33,7 +33,7 @@
     flex: 0 0 82px !important;
 }
 
-.list-group-item-action{
+.list-group-item-action, #world-map{
     cursor: pointer;
 }
 

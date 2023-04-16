@@ -23,19 +23,21 @@
 
   <body class="d-flex flex-column min-vh-100">
     <header>
-      <!-- Bootstrap Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-dark bg-primary bg-opacity-75">
+      <!-- Bootstrap Navbar (really just for practicing using Bootstrap, it has no functionality beyond displaying the name of the site) -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">René's City Weather Hub</a>
+          <h4 class="text-bg-primary">René's City Weather Hub</h4>
         </div>
       </nav>
     </header>
 
-    <!-- main content -->
+    <!-- main content held in one large Bootstrap container -->
     <div class="container-fluid">
-      <!-- one row, two columns -->
-      <div class="row">
-        <!-- contains the Cities search panel -->
+      <!-- one row, two columns,
+        the first column holds the city search form and the list of cities
+        the second holds the current weather and the 5-day forecast -->
+      <section class="row">
+        <!-- contains the Cities search panel and cities list -->
         <div class="col container col-12 col-sm-12 col-md-4 col-lg-3"
           id="cities-search-panel">
           <!-- search form to find a city -->
@@ -93,7 +95,7 @@
                   >
                     List
                   </a>
-                  <!-- allow user to select from different city lists -->
+                  <!-- allow user to select from different city lists from this Bootstrap dropdown select -->
                   <ul class="dropdown-menu">
                     <li>
                       <a class="dropdown-item" href="#">Search History</a>
@@ -134,7 +136,10 @@
         <div class="col container">
           <div class="card my-2 mx-0 " id="hero-city-weather-panel">
             <div class="card-body">
+                <div class="d-flex justify-content-start align-items-baseline">
                     <h5 class="card-title" id="hero-city-name"></h5>
+                    <p id="world-map">&nbsp;🌏</p>
+                    </div>
                     <p class="card-text" id="hero-city-date"></p>
                     <div class="d-flex justify-content-start align-items-center flex-wrap text-center align-content-center">
                     <img
@@ -176,7 +181,7 @@
         </div>
         </div>  
         <!-- end of the weather forecast panel -->
-      </div>
+      </section>
 
     </div>
     <!-- Modal Dialog -->
@@ -196,7 +201,6 @@
         </div>
       </div>
     </div>
-
     <!-- Footer -->
     <footer class="text-bg-primary bg-opacity-75 py-3 mt-auto">
       <div class="container">

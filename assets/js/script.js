@@ -1,23 +1,27 @@
 // ==========================================================================================================
 // Class Definitions
 
-// class to hold the forecast data
+// ==========================================================================================================
+// Forecast class
+// class to hold the forecast data, generalised for current weather and 5 day forecast
+// used to store the data from the API call
+// contained within the City class for typical use case
 class Forecast {
   constructor() {
-    this.date = '';
-    this.icon = '';
-    this.temperature = 0;
-    this.min = 0;
-    this.max = 0;
-    this.wind = 0;
-    this.windDegrees = 0;
-    this.windGust = 0;
-    this.humidity = 0;
-    this.description = '';
-    this.feelsLike = 0;
-    this.hasData = false;
+    this.date = ''; // date of the forecast
+    this.icon = ''; // icon code for the weather
+    this.temperature = 0; // current temperature
+    this.min = 0; // forecast minimum temperature
+    this.max = 0; // forecast maximum temperature
+    this.wind = 0; // current or forecast wind speed
+    this.windDegrees = 0; // current or forecast wind direction in degrees
+    this.windGust = 0; // current or forecast wind gust speed
+    this.humidity = 0; // current or forecast humidity
+    this.description = ''; // current or forecast weather description (matches the icon, really...)
+    this.feelsLike = 0; // current or forecast 'feels like' temperature
+    this.hasData = false; // flag to indicate if the forecast has data
   }
-  // copy info to a new forecast object
+  // copy info to a new forecast object so that a new object is created, rather than a reference
   clone() {
     const newForecast = new Forecast();
     newForecast.date = this.date;
@@ -34,15 +38,18 @@ class Forecast {
     newForecast.hasData = this.hasData;
     return newForecast;
   }
+  // utility function to convert the date object to a pretty string in the required format
+  // or return a default string if there is no data
   formattedDate() {
     if (this.hasData) {
       return dayjs(this.date).format('D/MM/YYYY');
     } else {
-      return 'Date: unknown';
+      return 'Data unavailable';
     }
   }
 
-  // display the forecast temperature
+  // utility function to format the forecast temperature, either with all details if shortFormat is false (used for current weather)
+  // or just the min and max if shortFormat is true (used for the 5 day forecast)
   formattedTemperature(shortFormat, isCurrent) {
     if (this.hasData) {
       if (!shortFormat) {
@@ -69,9 +76,12 @@ class Forecast {
     }
   }
 
+  // sets an element text to the formatted temperature
   setTemperature(id, shortFormat, isCurrent) {
     $(id).text( this.formattedTemperature(shortFormat, isCurrent));
   }
+
+  // utility function to format the forecast wind
   formattedWind(shortFormat) {
     if (this.hasData) {
       if (shortFormat) {
@@ -90,11 +100,12 @@ class Forecast {
     }
   }
 
-  // display the forecast wind
+  // display the forecast wind into a HTML element
   setWind(id, shortFormat) {
     $(id).text(this.formattedWind(shortFormat));
   }
 
+  // utility function to format the forecast humidity
   formattedHumidity( shortFormat) {
     if (this.hasData) {
       if (shortFormat) {
@@ -107,12 +118,12 @@ class Forecast {
     }
   }
 
-  // display the forecast humidity
+  // display the forecast humidity in a HTML element
   setHumidity(id, shortFormat) {
     $(id).text(this.formattedHumidity(shortFormat));
   }
 
-  // display the forecast icon
+  // return the URL of the weather icon
   getWeatherIconURL() {
     if (this.hasData && this.icon.length > 0) {
       return 'http://openweathermap.org/img/wn/' + this.icon + '@4x.png';
@@ -121,6 +132,7 @@ class Forecast {
     }
   }
 
+  // display the weather icon in an img HTML element by setting the attributes
   setWeatherIcon(id) {
     $(id).attr({
       src: this.getWeatherIconURL(),
@@ -129,28 +141,33 @@ class Forecast {
   }
 }
 
+
+// =================================================================================================
+// City class
+// Holds all the data for a city, including the current weather and the 5 day forecast
+// and the geographic info and the city list name, and if it is a favourite
 class City {
   constructor(cityName, countryCode) {
-    this.cityName = cityName;
-    this.countryCode = countryCode;
-    this.countryName = '';
-    this.stateName = '';
-    this.latitude = 0;
-    this.longitude = 0;
-    this.currentWeather = new Forecast();
-    this.fiveDayForecast = [
+    this.cityName = cityName; // the city name (e.g. 'London' in Title Case)
+    this.countryCode = countryCode; // the country code (e.g. 'GB' for the UK, iso2Code from the country list)
+    this.countryName = ''; // the country name (e.g. 'United Kingdom')
+    this.stateName = ''; // the state name (e.g. 'England')
+    this.latitude = 0; // the latitude of the city
+    this.longitude = 0; // the longitude of the city
+    this.currentWeather = new Forecast(); // the current weather forecast
+    this.fiveDayForecast = [ // the 5 day forecast
       new Forecast(),
       new Forecast(),
       new Forecast(),
       new Forecast(),
       new Forecast(),
     ];
-    this.hasData = false;
-    this.listName = '';
-    this.isFavourite = false;
-    this.updateCountryName();
+    this.hasData = false; // true if the city has data
+    this.listName = ''; // the name of the city list that this city is in eg search history, world cities, Australian Capitals, New Zealand Cities
+    this.isFavourite = false; // true if this city is a favourite
+    this.updateCountryName(); // update the country name based on the country code
   }
-  // update the country name based on the country code
+  // update the country name based on the country code (if it is not already set)
   updateCountryName() {
     if (this.countryCode && !(this.countryName)) {
       const foundCountry = countryList.find((country) => country.iso2Code === this.countryCode);
@@ -180,7 +197,8 @@ class City {
     this.hasData = false;
     this.isFavourite = false;
   }
-  // copy info to a new city object
+
+  // copy info to a new city object (don't always want to pass a city by reference)
   clone() {
     this.updateCountryName();
     const newCity = new City(this.cityName, this.countryCode);
@@ -195,6 +213,8 @@ class City {
     newCity.isFavourite = this.isFavourite;
     return newCity;
   }
+
+  // clones the five day forecast array
   cloneFiveDayForecast() {
     const newFiveDayForecast = [];
     for (let i = 0; i < this.fiveDayForecast.length; i++) {
@@ -202,6 +222,8 @@ class City {
     }
     return newFiveDayForecast;
   }
+
+  // sets the hasData flag for the  five day forecast
   fiveDayForecastHasData(value) {
     for (let i = 0; i < this.fiveDayForecast.length; i++) {
       this.fiveDayForecast[i].hasData = value;
@@ -209,6 +231,8 @@ class City {
   }
 
   // save the city as the default city to local storage so it can be retrieved later
+  // the default city is the last city that was searched for, and it is used to
+  // show an initial city forecast when the app is first loaded
   saveAsDefault() {
     // save the serialized city object to local storage
     localStorage.setItem('defaultCity', JSON.stringify(this.serialize()));
@@ -226,8 +250,9 @@ class City {
     }
   }
 
+  // serialize the parts of the city object that we want to be persistent
+  // forecast data is not saved as it will be out of date soon enough
   serialize() {
-    // serialize the city object
     const serialized = {
       cityName: this.cityName,
       countryCode: this.countryCode,
@@ -241,6 +266,7 @@ class City {
     return serialized;
   }
 
+  // deserialize the parts of the city object that we want to be persistent
   deserialize(serialized) {
     this.clearData();
     this.cityName = serialized.cityName;
@@ -254,9 +280,11 @@ class City {
     this.listName = serialized.listName;
   }
 
-  setHeroUI() {
+  // hydrate the page with the city data and forecast data
+  displayCityAndForecastToPage() {
+    // Use jQuery to display the city and current forecast data to the page for practice
     // display basic information about the city
-    $('#hero-city-name').text(this.formatCityName());
+    $('#hero-city-name').html(this.formatCityName());
 
     // display the current local time
     $('#hero-city-date').text(this.formatCurrentDate());
@@ -273,10 +301,12 @@ class City {
     // humidity
     this.currentWeather.setHumidity('#hero-city-humidity', false);
 
-    // now do the five day forecast
+    // now do the five day forecast, but use string literals to build the HTML
+    // yeah, much preferred, tbh.
     let forecastHTML = '';
     for (let i = 0; i < this.fiveDayForecast.length; i++) {
       const thisForecast = this.fiveDayForecast[i];
+      const hasDataClass = thisForecast.hasData ? '' : 'd-none';
       forecastHTML += `<div class="col">
       <div id="5-day-forecast-day-${i}" class="card">
         <div
@@ -286,7 +316,7 @@ class City {
           ${thisForecast.formattedDate()}
         </div>
         <div class="card-body p-0">
-          <div class="forecast-icon px-2 m-2"> 
+          <div class="forecast-icon px-2 m-2 ${hasDataClass}"> 
             <img
               src="${thisForecast.getWeatherIconURL()}"}
               class="five-day-weather-icon"
@@ -295,18 +325,19 @@ class City {
             />
           </div>
           <div class="forecast-description fw-bold text-primary px-2 m-2">${thisForecast.description}</div>
-          <div class="forecast-temp bg-success bg-opacity-25 px-2 py-1">${thisForecast.formattedTemperature(true)}</div>
-          <div class="forecast-wind bg-success bg-opacity-10 px-2 py-1">${thisForecast.formattedWind(true)}</div>
-          <div class="forecast-humidity bg-success bg-opacity-25 px-2 py-1">${thisForecast.formattedHumidity(true)}</div>
+          <div class="${hasDataClass} forecast-temp bg-success bg-opacity-25 px-2 py-1">${thisForecast.formattedTemperature(true)}</div>
+          <div class="${hasDataClass} forecast-wind bg-success bg-opacity-10 px-2 py-1">${thisForecast.formattedWind(true)}</div>
+          <div class="${hasDataClass} forecast-humidity bg-success bg-opacity-25 px-2 py-1">${thisForecast.formattedHumidity(true)}</div>
           </ul>
       </div>
     </div>
   </div>`;
     }
+    // hydrate the page with the 5-day forecast data
     $('#hero-city-forecast-panel').html(forecastHTML);
   }
 
-
+  // this function formats the city name to be displayed on the page, depending on what data is available
   formatCityName() {
     this.updateCountryName();
     let cityName = this.cityName;
@@ -316,27 +347,85 @@ class City {
     if (this.countryName.length > 0) {
       cityName += ', ' + this.countryName;
     }
+    // add the world emoji to the end of the city name
+    if (this.latitude && this.longitude) {
+    }
     return cityName;
   }
 
+  // this function formats the current date (local time, not time at the city) to be displayed on the page
   formatCurrentDate() {
     return 'Current weather for today, ' + dayjs().format('dddd, D MMMM, YYYY');
   }
 }
+// ================================= End of Class Definitions ===============================================
 
 // ==========================================================================================================
 // GLOBALS
 // ==========================================================================================================
 // array of Country objects, which hold country codes and names - used to convert country code to country name and vice versa
 let countryList = [];
-// a city object to hold the info about the city that is being searched for
+
+// a city object to hold the info about the city that is being searched for, which is then copied to the selectedCity object
+// if successfully populated with data so that it can be displayed
 var searchCity = new City('', '');
 
-// the currently selected city
+// the currently selected city that has the displayed forecast
 var selectedCity = new City('', '');
 
-// hold the list of cities that have been searched for
+// hold the list of cities that have been searched for or that are in other special lists
 var citiesCombinedList = [];
+
+// ==========================================================================================================
+// Main Entrance Point to Web Application
+// ==========================================================================================================
+$(document).ready(async function() {
+  // firstly populate the country select list
+  // this grabs 2-digit ISO 3166 country codes and country names from the World Bank API
+  // this and other API calls are all called with 'await' so that we are sure data is retrieved and saved
+  // before attempts are made to use it
+  // hydrateCountryList populates an array of city objects, which is used to populate the select list
+  // and it enables conversion from country name to country code, which is used when countries are searched for,
+  // hence why this is the first thing done. T
+  // The API call is redundant after the first run, as local storage is then used for the list
+  await hydrateCountryList();
+
+  // get the city list out of local storage, if it exists
+  loadCityList();
+
+  // load the last city from local storage or use the default city (Adelaide, AU) if it hasn't yet been set
+  //  put it into the selectedCity object
+  loadLastCity();
+
+  // display the last/default city, firstly without weather detail just to make the page look a little better during API calls
+  selectedCity.displayCityAndForecastToPage();
+
+  // copy the selectedCity object to the searchCity object which is used to get the current weather via APIs
+  searchCity = selectedCity.clone();
+
+  // get the current weather for the last seen/default city
+  searchCity.hasData = false;
+  // this async function will populate the searchCity object with data from the APIs,
+  // including getting geographical data (latitude and longitude), if it doesn't exist,
+  // the current weather and daily forecast, and then the 5-day forecast
+  await getWeatherData();
+  if (searchCity.hasData) {
+    // copy the searchCity object to the selectedCity object and display the data
+    cloneSearchToSelected();
+    // add the city to the list of Search History (if it isn't already there)
+    selectedCity.listName = 'Search History';
+    addSelectedCityToList();
+  }
+
+  // add the standard cities to the list (Australia, New Zealand and notable World Cities) if they aren't already there
+  addStandardCities(); // saved to local storage after the first run on the browser
+
+  // select Australia as the default country in the country select list
+  $('#input-country').val('AU');
+
+  // populate the Search History list and now it is up to the user!
+  populateCityList('Search History');
+});
 
 
 // ==========================================================================================================
@@ -344,7 +433,7 @@ var citiesCombinedList = [];
 // ==========================================================================================================
 // Load default city
 function loadLastCity() {
-  // Get last selected city from local storage
+  // Get last selected city from local storage, or use a default city if it hasn't been set yet
   selectedCity.loadAsDefault();
   if (!selectedCity.cityName) {
     // if no city was found in local storage, use the default city of Adelaide, Australia
@@ -357,50 +446,355 @@ function loadLastCity() {
   return;
 }
 
-const searchCityButton = document.getElementById('search-city-btn');
-searchCityButton.addEventListener('click', searchForCity);
+function loadCityList() {
+  citiesCombinedList = [];
+  // deserialize the city list from local storage
+  const cityList = JSON.parse(localStorage.getItem('cityList'));
 
-async function searchForCity(event) {
-  event.preventDefault();
-  let city = document.getElementById('input-search-city').value.trim();
-  const country = document.getElementById('input-country').value;
-  if (city.length > 0 && country.length > 0) {
-    city = toTitleCase(city);
-    await newCitySearch(city, country);
-  } else {
-    alertModal('Not enough information', 'Please enter a city and choose a country.');
+  if (cityList) {
+    // if there is a city list in local storage then add it to the citiesCombinedList array
+    // iterate through the cities in the city list
+    for (let i = 0; i < cityList.cities.length; i++) {
+      const newCity = new City('', '');
+      newCity.deserialize(cityList.cities[i].serializedCity);
+      citiesCombinedList.push(newCity);
+    }
   }
 }
 
-async function newCitySearch(cityName, countryCode, listName = 'Search History') {
-  // see if the city is already in the list
-  let matchingCities = [];
-  if (listName === 'Favorites') {
-    matchingCities = citiesCombinedList.filter((city) => city.isFavourite && city.cityName === cityName && city.countryCode === countryCode);
-  } else {
-    matchingCities = citiesCombinedList.filter((city) => city.cityName === cityName && city.countryCode === countryCode && city.listName === listName);
-  }
 
+function saveCityList() {
+  // serialize the city list to local storage
+  // sort the list by city name
+  citiesCombinedList.sort((a, b) => {
+    return a.cityName.localeCompare(b.cityName);
+  });
+  // serialize the city list
+  const serialized = {
+    cities: [],
+  };
+
+  for (let i = 0; i < citiesCombinedList.length; i++) {
+    let saveCity = new City('', '');
+    saveCity = citiesCombinedList[i];
+    const serializedCity = saveCity.serialize();
+    serialized.cities.push({
+      serializedCity,
+    });
+  }
+  // save the city list to local storage
+  localStorage.setItem('cityList', JSON.stringify(serialized));
+}
+
+function addSelectedCityToList() {
+  // add the city to the list of Search History
+  // there must not be an existing city in the list with the same name, state and country and listName
+  // if there is then ignore it
+  let found = false;
+  for (let i = 0; i < citiesCombinedList.length; i++) {
+    if (
+      citiesCombinedList[i].cityName === selectedCity.cityName &&
+      citiesCombinedList[i].countryCode === selectedCity.countryCode &&
+      citiesCombinedList[i].listName === selectedCity.listName
+    ) {
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    const newCity = selectedCity.clone();
+    citiesCombinedList.push(newCity);
+    // ensure duplicates of favourite cities are all set correctly
+    if (!propagateFavouriteCities()) {
+      // save the city list to local storage if it wasn't saved in the propagateFavouriteCities function
+      saveCityList();
+    };
+  }
+}
+
+function addCityToList(newCity) {
+  // add the city to the list of Search History
+  // there must not be an existing city in the list with the same name, country code and listName
+  // if there is then ignore it
+  let found = false;
+  for (let i = 0; i < citiesCombinedList.length; i++) {
+    if (
+      citiesCombinedList[i].cityName === newCity.cityName &&
+      citiesCombinedList[i].countryCode === newCity.countryCode &&
+      citiesCombinedList[i].listName === newCity.listName
+    ) {
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    citiesCombinedList.push(newCity);
+    // save the city list to local storage
+    saveCityList();
+  }
+}
+
+function removeCityFromList(cityName, countryCode, listName) {
+  // remove the city from the list of cities
+  // there must be an existing city in the list with the same name, countryCode and listName
+  // if there is then remove it
+  for (let i = 0; i < citiesCombinedList.length; i++) {
+    if (
+      citiesCombinedList[i].cityName === cityName &&
+      citiesCombinedList[i].countryCode === countryCode &&
+      citiesCombinedList[i].listName === listName
+    ) {
+      citiesCombinedList.splice(i, 1);
+      // save the city list to local storage
+      saveCityList();
+      return true;
+    }
+  }
+  return false;
+}
+
+
+// ===================================================================================================
+// add default lists of Australian Capitals, New Zealand cities, World Cities to the city select list
+function addStandardCities() {
+  // create an array of objects containing the city name, country code and list name
+  const citiesData = [
+    {cityName: 'Adelaide', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Brisbane', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Canberra', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Darwin', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Hobart', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Melbourne', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Perth', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Sydney', countryCode: 'AU', listName: 'Australian Capitals'},
+    {cityName: 'Auckland', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Christchurch', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Dunedin', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Hamilton', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Napier', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Nelson', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Palmerston North', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Queenstown', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Rotorua', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Tauranga', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Wellington', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Whangarei', countryCode: 'NZ', listName: 'New Zealand Cities'},
+    {cityName: 'Amsterdam', countryCode: 'NL', listName: 'World Cities'},
+    {cityName: 'Bangkok', countryCode: 'TH', listName: 'World Cities'},
+    {cityName: 'Berlin', countryCode: 'DE', listName: 'World Cities'},
+    {cityName: 'Dubai', countryCode: 'AE', listName: 'World Cities'},
+    {cityName: 'Hong Kong', countryCode: 'CN', listName: 'World Cities'},
+    {cityName: 'London', countryCode: 'GB', listName: 'World Cities'},
+    {cityName: 'Los Angeles', countryCode: 'US', listName: 'World Cities'},
+    {cityName: 'New York', countryCode: 'US', listName: 'World Cities'},
+    {cityName: 'Paris', countryCode: 'FR', listName: 'World Cities'},
+    {cityName: 'Rio de Janeiro', countryCode: 'BR', listName: 'World Cities'},
+    {cityName: 'Rome', countryCode: 'IT', listName: 'World Cities'},
+    {cityName: 'Shanghai', countryCode: 'CN', listName: 'World Cities'},
+    {cityName: 'Singapore', countryCode: 'SG', listName: 'World Cities'},
+    {cityName: 'Sydney', countryCode: 'AU', listName: 'World Cities'},
+    {cityName: 'Tokyo', countryCode: 'JP', listName: 'World Cities'},
+  ];
+
+  citiesData.forEach((cityData) => {
+    const newCity = new City(cityData.cityName, cityData.countryCode);
+    newCity.listName = cityData.listName;
+    // add the city to the appropriate list, avoid duplicates
+    addCityToList(newCity);
+  });
+
+  // propagate the favourite cities to the city select list elements as there
+  // can be duplicates due to the different lists
+  propagateFavouriteCities();
+}
+
+// ensure duplicate cities (in different list categories) have the same favourite status
+// return true if any changes were made
+function propagateFavouriteCities() {
+  const favouriteCities = citiesCombinedList.filter((city) => city.isFavourite);
+  const nonFavoriteCities = citiesCombinedList.filter((city) => !city.isFavourite);
+  let foundOne = false;
+  favouriteCities.forEach((city) => {
+    nonFavoriteCities.forEach((nonFavouriteCity) => {
+      if (city.cityName === nonFavouriteCity.cityName && city.countryCode === nonFavouriteCity.countryCode) {
+        nonFavouriteCity.isFavourite = true;
+        foundOne = true;
+      }
+    });
+  });
+
+  // if one was updated, then save the list to local storage
+  if (foundOne) {
+    saveCityList();
+    return true;
+  };
+  return false;
+}
+
+function propagateWeatherInfo() {
+  const favouriteCities = citiesCombinedList.filter((city) => searchCity.cityName === city.cityName && searchCity.countryCode === city.countryCode);
+  favouriteCities.forEach((city) => {
+    city.currentWeather = searchCity.currentWeather.clone();
+    city.fiveDayForecast = searchCity.cloneFiveDayForecast();
+    city.hasData = searchCity.hasData;
+  });
+}
+
+// copy the searchCity object to the selectedCity object
+function cloneSearchToSelected() {
+  selectedCity = searchCity.clone();
+  // save the selected city to local storage
+  selectedCity.saveAsDefault();
+  // update the hero UI with the current weather data
+  selectedCity.displayCityAndForecastToPage();
+  // ensure the selected city is saved to the overall city list
+  addSelectedCityToList();
+}
+
+// set or reset the favourite status of the selected city, and as the city may appear on multiple lists, update all instances
+function toggleFavouriteStatus(isFavourite, cityName, countryCode) {
+  const matchingCities = citiesCombinedList.filter((city) => city.cityName === cityName && city.countryCode === countryCode);
   if (matchingCities.length > 0 ) {
-    // get a copy of the city object
-    searchCity = matchingCities[0].clone();
-  } else {
-    // No match; clear the current city
-    searchCity= new City(cityName, countryCode);
-    searchCity.listName = listName;
-  }
-  // get the weather data
-  const success = await getWeatherData();
-  if (success) {
-    // set the selected city to the search city and display it
-    cloneSearchToSelected();
-    // display the city list
-    populateCityList(listName);
+    matchingCities.forEach((city) => {
+      city.isFavourite = isFavourite;
+    });
+    saveCityList();
   }
 }
+
+
+// =================================================================================================
+// API Calls and API information
+// =================================================================================================
+// API Documentation: https://openweathermap.org/current
+// Current Weather Data
+// http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
+// NB: it seems to want the lat and lon to be in decimal degrees to two decimal places only
+// 5 Day / 3 Hour Forecast
+// http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+// Geocoding API http://openweathermap.org/api/geocoding-api
+// http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
+// {city name} is obviously the city name
+// {state code} is the US state code only
+// {country code} is the ISO 3166-2 country code
+// {limit} is the number of results to return (up to 5 can be returned)
+// World Bank Country list http://api.worldbank.org/v2/country?format=json&per_page=50&page=2
+
+
+// ========================= World Bank API ==================================================
+// get all of the country codes from the world bank so that the user can select a country and
+// we can use the country code for the weather api
+// this is a bit tricky because the world bank api only returns 50 countries per page
+// so we have to make multiple calls to the api to get all of the countries
+// and use async and await to make sure the data is captured before we continue
+
+async function hydrateCountryList() {
+  // check local storage for the countries first
+  countryList = JSON.parse(localStorage.getItem('countries'));
+  const baseURL = 'https://api.worldbank.org/v2/country';
+  if (!countryList || countryList.length < 100) {
+    // reset the global array that holds the countries
+    countryList = [];
+    // not in local storage, so get them from the world bank api
+    // set up the initial search parameters
+    const searchParameters = {format: 'json', per_page: 50, page: 1};
+
+    // retrieving the countries from the world bank api and don't continue until it's done
+    // this is a recursive routine that will keep calling itself until all of the countries
+    // have been retrieved
+    await retrieveCountries(baseURL, searchParameters);
+    // save the countries to local storage ready for next time
+    sortCountryList();
+    localStorage.setItem('countries', JSON.stringify(countryList));
+  }
+  // now fill the country select list (input-country)
+  const countrySelect = document.getElementById('input-country');
+  // clear the select list
+  countrySelect.innerHTML = '';
+  // add back the instruction option plus Australia and New Zealand
+  // and US and UK
+  // addCountryToSelect(countrySelect, '', 'Choose the country');
+  addCountryToSelect(countrySelect, 'AU', 'Australia');
+  addCountryToSelect(countrySelect, 'NZ', 'New Zealand');
+  addCountryToSelect(countrySelect, 'US', 'United States');
+  addCountryToSelect(countrySelect, 'GB', 'United Kingdom');
+
+  // add the countries to the county select list
+  for (let i = 0; i < countryList.length; i++) {
+    // get the key-value pair from the countryList array
+    const kvp = countryList[i];
+    // get the key (iso2Code) and the value (name) from the key-value pair
+    const key = kvp.iso2Code;
+    // ignore AU and NZ etc because we've already added them
+    if (
+      !(
+        key === 'AU' ||
+        key === 'NZ' ||
+        key === '' ||
+        key === 'US' ||
+        key === 'GB'
+      )
+    ) {
+      // create an option element for the select list
+      addCountryToSelect(countrySelect, key, kvp.countryName);
+    }
+  }
+}
+
+function addCountryToSelect(listElement, countryCode, countryName) {
+  // add the country to the country dropdown
+  selectOption = document.createElement('option');
+  selectOption.value = countryCode;
+  selectOption.innerHTML = countryName;
+  listElement.appendChild(selectOption);
+}
+
+// this function retrieves the countries from the world bank api, one page at a time
+// it uses recursion to get all of the pages of countries
+// and awaits the response from the api before continuing
+async function retrieveCountries(baseURL, searchParameters) {
+  // create a URLSearchParams object from the search parameters
+  const formattedSearchParameters = new URLSearchParams(searchParameters);
+  // create the URL to retrieve the countries one page at a time
+  const url = `${baseURL}?${formattedSearchParameters}`;
+  // wait for the response from the api
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Error fetching countries');
+    }
+    // wait for the response to be converted to json
+    const data = await response.json();
+    // now add the countries to the global array
+    for (let i = 0; i < data[1].length; i++) {
+    // get a key-value pair of iso2Code and name from the country object
+    // but only if it is a country not a region...
+      if (data[1][i].region.id !== 'NA') {
+        const countryObject ={
+          iso2Code: data[1][i].iso2Code,
+          countryName: data[1][i].name,
+        };
+        // add the key-value pair to the global countryList array
+        countryList.push(countryObject);
+      }
+    }
+    // check if there are more pages of countries to retrieve
+    if (data[0].pages > searchParameters.page) {
+    // increment the page number and retrieve the next page recursively and await the response
+      searchParameters.page++;
+      await retrieveCountries(baseURL, searchParameters);
+    }
+  } catch (error) {
+    alertModal('API Error in retrieveCountries', error.message);
+    return false;
+  }
+}
+
 
 // here is where the magic happens and the weather data is retrieved
 // using the searchCity object to hold the city and country info
+// calls the geo api to get the lat and long for the city if necessary
+// then calls the weather api to get the current weather and the 5 day forecast
 async function getWeatherData() {
   // see if we already have latitude and longitude for the city
   let success = true;
@@ -446,6 +840,8 @@ async function getLatAndLong() {
     // wait for the response to be converted to json
     const data = await response.json();
     if (data) {
+      // choose the first city returned: could be up to 5
+      // a future enhancement would be to give the user a choice
       searchCity.latitude = data[0].lat;
       searchCity.longitude = data[0].lon;
       if (data[0].hasOwnProperty('state')) {
@@ -466,6 +862,50 @@ async function getLatAndLong() {
   }
 }
 
+// this function retrieves the current weather for the city searchCity
+async function getCurrentWeather() {
+  const apiKey = cleverlyObfuscatedSecret();
+  const url = `http://api.openweathermap.org/data/2.5/weather?lat=${searchCity.latitude.toFixed(
+      2,
+  )}&lon=${searchCity.longitude.toFixed(2)}&appid=${apiKey}&units=metric`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      searchCity.hasData = false;
+      searchCity.currentWeather.hasData = false;
+      searchCity.fiveDayForecastHasData(false);
+
+      throw new Error('Error fetching current weather');
+    }
+    // wait for the response to be converted to json
+    const data = await response.json();
+    if (data) {
+      // grab the data and put it into the currentCity object
+      searchCity.currentWeather.date = dayjs();
+      searchCity.currentWeather.temperature = data.main.temp;
+      searchCity.currentWeather.feelsLike = data.main.feels_like;
+      searchCity.currentWeather.min = data.main.temp_min;
+      searchCity.currentWeather.max = data.main.temp_max;
+      searchCity.currentWeather.wind = data.wind.speed;
+      searchCity.currentWeather.windDegrees = data.wind.deg;
+      searchCity.currentWeather.windGust = data.wind.gust;
+      searchCity.currentWeather.humidity = data.main.humidity;
+      searchCity.currentWeather.icon = data.weather[0].icon;
+      searchCity.currentWeather.description = data.weather[0].description;
+      searchCity.currentWeather.hasData = true;
+      searchCity.hasData = true;
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    searchCity.hasData = false;
+    alertModal('API Error in getCurrentWeather', error.message);
+    return false;
+  }
+}
+
+// this function retrieves the five day forecast for the searchCity
 async function getFiveDayForecast() {
   const apiKey = cleverlyObfuscatedSecret();
   const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${searchCity.latitude.toFixed(
@@ -570,96 +1010,9 @@ async function getFiveDayForecast() {
     return false;
   }
 }
+// ====================================================================================================
 
-async function getCurrentWeather() {
-  const apiKey = cleverlyObfuscatedSecret();
-  const url = `http://api.openweathermap.org/data/2.5/weather?lat=${searchCity.latitude.toFixed(
-      2,
-  )}&lon=${searchCity.longitude.toFixed(2)}&appid=${apiKey}&units=metric`;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      searchCity.hasData = false;
-      searchCity.currentWeather.hasData = false;
-      searchCity.fiveDayForecastHasData(false);
-
-      throw new Error('Error fetching current weather');
-    }
-    // wait for the response to be converted to json
-    const data = await response.json();
-    if (data) {
-      // grab the data and put it into the currentCity object
-      searchCity.currentWeather.date = dayjs();
-      searchCity.currentWeather.temperature = data.main.temp;
-      searchCity.currentWeather.feelsLike = data.main.feels_like;
-      searchCity.currentWeather.min = data.main.temp_min;
-      searchCity.currentWeather.max = data.main.temp_max;
-      searchCity.currentWeather.wind = data.wind.speed;
-      searchCity.currentWeather.windDegrees = data.wind.deg;
-      searchCity.currentWeather.windGust = data.wind.gust;
-      searchCity.currentWeather.humidity = data.main.humidity;
-      searchCity.currentWeather.icon = data.weather[0].icon;
-      searchCity.currentWeather.description = data.weather[0].description;
-      searchCity.currentWeather.hasData = true;
-      searchCity.hasData = true;
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    searchCity.hasData = false;
-    alertModal('API Error in getCurrentWeather', error.message);
-    return false;
-  }
-}
-
-// copy the searchCity object to the selectedCity object
-function cloneSearchToSelected() {
-  selectedCity = searchCity.clone();
-  // save the selected city to local storage
-  selectedCity.saveAsDefault();
-  // update the hero UI with the current weather data
-  selectedCity.setHeroUI();
-  // ensure the selected city is saved to the overall city list
-  addSelectedCityToList();
-}
-
-$(document).ready(async function() {
-  // populate the country select list; this is a promise so we need to wait for it to complete
-  // this populates an array which is used to populate the select list
-  // and it enables conversion from country name to country code, so best to do it first
-  await hydrateCountryList();
-
-  // get the city list out of local storage
-  loadCityList();
-
-  // load the last city from local storage or use the default city (Adelaide, AU)
-  loadLastCity();
-  // display the last city, firstly without weather detail just to make the page look nice
-  selectedCity.setHeroUI();
-  // get the current weather for the last city
-  // copy the selectedCity object to the searchCity object which is used to get the current weather via APIs
-  searchCity = selectedCity.clone();
-  searchCity.hasData = false;
-  await getWeatherData();
-  if (searchCity.hasData) {
-    // copy the searchCity object to the selectedCity object and display the data
-    cloneSearchToSelected();
-    // add the city to the list of Search History
-    selectedCity.listName = 'Search History';
-    addSelectedCityToList();
-  }
-
-  // add the standard cities to the list
-  addStandardCities(); // saved to local storage after the first run on the browser
-
-  // select Australia as the default country
-  $('#input-country').val('AU');
-
-  // populate the Search History list
-  populateCityList('Search History');
-});
-
+// Display the selected list of cities
 function populateCityList(listName) {
   // clear the list
   $('#current-city-list-name').text(listName);
@@ -687,7 +1040,8 @@ function populateCityList(listName) {
   } else {
     selectedCities = citiesCombinedList.filter((city) => city.listName === listName);
   }
-  // make sure the list items are unique
+
+  // make sure the list items are unique (eg if a city is in both search history and world cities and is a favourite)
   const uniqueCityArray = Object.values(selectedCities.reduce((unique, testCity) => {
     // Create a composite key based on the two properties
     const compositeKey = `${testCity.cityName}_${testCity.countryCode}`;
@@ -697,12 +1051,13 @@ function populateCityList(listName) {
     return unique;
   }, {}));
 
+  // set the class that determines the width of the button area, which also therefore sets the width of the list items
   const classDeleteButton = (showDeleteButton ? '' : 'd-none');
   const classButtons = (showDeleteButton ? 'toolbar-two' : 'toolbar-one');
   $('#city-list-toolbars').removeClass('toolbar-one toolbar-two').addClass(classButtons);
   $('#city-list-toolbars').addClass(classButtons);
 
-  // iterate through the cities in the city list
+  // iterate through the cities in the city list, creating the HTML for each city
   uniqueCityArray.forEach((cityInList) => {
     const cityName = cityInList.cityName;
     const countryCode = cityInList.countryCode;
@@ -716,6 +1071,8 @@ function populateCityList(listName) {
       isFavourite = selectedCity.isFavourite;
       cityInList.isFavourite = isFavourite;
     }
+
+    // create the badge of the retrieved city current temperature if it exists and the favourite emoji if it is a favourite
     const classFavourite = (isFavourite ? 'favourite-city' : '');
     const cityDisplayName = (isFavourite ? favouriteEmoji + ' ' : '') + cityName;
     const classIsCurrentCity = (isCurrentCity ? classFavourite + ' active bg-success' : classFavourite + ' bg-light');
@@ -730,252 +1087,32 @@ function populateCityList(listName) {
       currentTemperature = formatTemperature(cityInList.currentWeather.temperature);
     }
 
-    // create the city list item
+    // create the city list item HTML using string literals
     cityListHTML += `<div class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action ${classIsCurrentCity} px-1 mx-0 fs-6 ${classFavourite}" 
           aria-current="false" id="${cityDivId}">${cityDisplayName}<span class="badge ${classBadgeIsCurrentCity} rounded-pill" id="${cityBadgeId}">${currentTemperature}</span></div>`;
 
-    // create the buttons
+    // create the buttons HTML using string literals
     buttonsListHTML += `<div class="btn-toolbar justify-content-end" role="toolbar" aria-label="City item functions">
        <button type="button" class="favourite-button btn btn-outline-info custom-sml-btn" id="fav-btn-${cityName}-${countryCode}">⭐</button><button type="button" 
        class="delete-button btn btn-outline-info custom-sml-btn ${classDeleteButton}" id="del-btn-${cityName}-${countryCode}">🗑️</button></div>`;
   });
 
+  // add the HTML to the page
   $('#searched-city-list').html(cityListHTML);
   $('#city-list-toolbars').html(buttonsListHTML);
 }
 
-function loadCityList() {
-  citiesCombinedList = [];
-  // deserialize the city list from local storage
-  const cityList = JSON.parse(localStorage.getItem('cityList'));
+// ====================================================================================================
+// Utility functions
 
-  if (cityList) {
-    // if there is a city list in local storage then add it to the citiesCombinedList array
-    // iterate through the cities in the city list
-    for (let i = 0; i < cityList.cities.length; i++) {
-      const newCity = new City('', '');
-      newCity.deserialize(cityList.cities[i].serializedCity);
-      citiesCombinedList.push(newCity);
-    }
-  }
-}
-
-function saveCityList() {
-  // serialize the city list to local storage
-  // sort the list by city name
-  citiesCombinedList.sort((a, b) => {
-    return a.cityName.localeCompare(b.cityName);
-  });
-  // serialize the city list
-  const serialized = {
-    cities: [],
-  };
-
-  for (let i = 0; i < citiesCombinedList.length; i++) {
-    let saveCity = new City('', '');
-    saveCity = citiesCombinedList[i];
-    const serializedCity = saveCity.serialize();
-    serialized.cities.push({
-      serializedCity,
-    });
-  }
-  // save the city list to local storage
-  localStorage.setItem('cityList', JSON.stringify(serialized));
-}
-
-function addSelectedCityToList() {
-  // add the city to the list of Search History
-  // there must not be an existing city in the list with the same name, state and country and listName
-  // if there is then ignore it
-  let found = false;
-  for (let i = 0; i < citiesCombinedList.length; i++) {
-    if (
-      citiesCombinedList[i].cityName === selectedCity.cityName &&
-      citiesCombinedList[i].countryCode === selectedCity.countryCode &&
-      citiesCombinedList[i].listName === selectedCity.listName
-    ) {
-      found = true;
-      break;
-    }
-  }
-  if (!found) {
-    const newCity = selectedCity.clone();
-    citiesCombinedList.push(newCity);
-    // ensure duplicates of favourite cities are all set correctly
-    if (!propagateFavouriteCities()) {
-      // save the city list to local storage if it wasn't saved in the propagateFavouriteCities function
-      saveCityList();
-    };
-  }
-}
-
-function addCityToList(newCity) {
-  // add the city to the list of Search History
-  // there must not be an existing city in the list with the same name, country code and listName
-  // if there is then ignore it
-  let found = false;
-  for (let i = 0; i < citiesCombinedList.length; i++) {
-    if (
-      citiesCombinedList[i].cityName === newCity.cityName &&
-      citiesCombinedList[i].countryCode === newCity.countryCode &&
-      citiesCombinedList[i].listName === newCity.listName
-    ) {
-      found = true;
-      break;
-    }
-  }
-  if (!found) {
-    citiesCombinedList.push(newCity);
-    // save the city list to local storage
-    saveCityList();
-  }
-}
-
-function removeCityFromList(cityName, countryCode, listName) {
-  // remove the city from the list of cities
-  // there must be an existing city in the list with the same name, countryCode and listName
-  // if there is then remove it
-  for (let i = 0; i < citiesCombinedList.length; i++) {
-    if (
-      citiesCombinedList[i].cityName === cityName &&
-      citiesCombinedList[i].countryCode === countryCode &&
-      citiesCombinedList[i].listName === listName
-    ) {
-      citiesCombinedList.splice(i, 1);
-      // save the city list to local storage
-      saveCityList();
-      return true;
-    }
-  }
-  return false;
-}
-
-// Current Weather Data
-// API Documentation: https://openweathermap.org/current
-// http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
-// Geocoding API http://openweathermap.org/api/geocoding-api
-// http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
-// {city name} is obviously the city name
-// {state code} is the US state code only
-// {country code} is the ISO 3166 country code
-// {limit} is the number of results to return (up to 5 can be returned)
-// Geocoding coordinates by zip/post code http://api.openweathermap.org/geo/1.0/zip?zip={zip code},{country code}&appid={API key}
-// {zip code} is the zip/post code
-// {country code} is the ISO 3166 country code
-// World Bank Country list http://api.worldbank.org/v2/country?format=json&per_page=50&page=2
-
-// ===================================================================================================
-// get all of the country codes from the world bank so that the user can select a country and
-// we can use the country code for the weather api
-// this is a bit tricky because the world bank api only returns 50 countries per page
-// so we have to make multiple calls to the api to get all of the countries
-// and use async and await to make sure the data is captured before we continue
-
-async function hydrateCountryList() {
-  // check local storage for the countries first
-  countryList = JSON.parse(localStorage.getItem('countries'));
-  const baseURL = 'https://api.worldbank.org/v2/country';
-  if (!countryList || countryList.length < 100) {
-    // reset the global array that holds the countries
-    countryList = [];
-    // not in local storage, so get them from the world bank api
-    // set up the initial search parameters
-    const searchParameters = {format: 'json', per_page: 50, page: 1};
-    // retrieving the countries from the world bank api but don't continue until it's done
-    await retrieveCountries(baseURL, searchParameters);
-    // save the countries to local storage ready for next time
-    sortCountryList();
-    localStorage.setItem('countries', JSON.stringify(countryList));
-  }
-  // now fill the country select list (input-country)
-  const countrySelect = document.getElementById('input-country');
-  // clear the select list
-  countrySelect.innerHTML = '';
-  // add back the instruction option plus Australia and New Zealand
-  // and US and UK
-  // addCountryToSelect(countrySelect, '', 'Choose the country');
-  addCountryToSelect(countrySelect, 'AU', 'Australia');
-  addCountryToSelect(countrySelect, 'NZ', 'New Zealand');
-  addCountryToSelect(countrySelect, 'US', 'United States');
-  addCountryToSelect(countrySelect, 'GB', 'United Kingdom');
-
-  // add the countries to the county select list
-  for (let i = 0; i < countryList.length; i++) {
-    // get the key-value pair from the countryList array
-    const kvp = countryList[i];
-    // get the key (iso2Code) and the value (name) from the key-value pair
-    const key = kvp.iso2Code;
-    // ignore AU and NZ etc because we've already added them
-    if (
-      !(
-        key === 'AU' ||
-        key === 'NZ' ||
-        key === '' ||
-        key === 'US' ||
-        key === 'GB'
-      )
-    ) {
-      // create an option element for the select list
-      addCountryToSelect(countrySelect, key, kvp.countryName);
-    }
-  }
-}
-
-function addCountryToSelect(listElement, countryCode, countryName) {
-  // add the country to the country dropdown
-  selectOption = document.createElement('option');
-  selectOption.value = countryCode;
-  selectOption.innerHTML = countryName;
-  listElement.appendChild(selectOption);
-}
-
-// this function retrieves the countries from the world bank api, one page at a time
-// it uses recursion to get all of the pages of countries
-// and awaits the response from the api before continuing
-async function retrieveCountries(baseURL, searchParameters) {
-  // create a URLSearchParams object from the search parameters
-  const formattedSearchParameters = new URLSearchParams(searchParameters);
-  // create the URL to retrieve the countries one page at a time
-  const url = `${baseURL}?${formattedSearchParameters}`;
-  // wait for the response from the api
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error('Error fetching countries');
-    }
-    // wait for the response to be converted to json
-    const data = await response.json();
-    // now add the countries to the global array
-    for (let i = 0; i < data[1].length; i++) {
-    // get a key-value pair of iso2Code and name from the country object
-    // but only if it is a country not a region...
-      if (data[1][i].region.id !== 'NA') {
-        const countryObject ={
-          iso2Code: data[1][i].iso2Code,
-          countryName: data[1][i].name,
-        };
-        // add the key-value pair to the global countryList array
-        countryList.push(countryObject);
-      }
-    }
-    // check if there are more pages of countries to retrieve
-    if (data[0].pages > searchParameters.page) {
-    // increment the page number and retrieve the next page recursively and await the response
-      searchParameters.page++;
-      await retrieveCountries(baseURL, searchParameters);
-    }
-  } catch (error) {
-    alertModal('API Error in retrieveCountries', error.message);
-    return false;
-  }
-}
-
+// sort the country list by country name
 function sortCountryList() {
   countryList.sort((a, b) => {
     return a.countryName.localeCompare(b.countryName);
   });
 }
 
+// translate the wind direction degrees to a compass direction
 function convertWindDegreesToDirection(degrees) {
   const windDirections = [
     'N',
@@ -995,10 +1132,11 @@ function convertWindDegreesToDirection(degrees) {
     'NW',
     'NNW',
   ];
-  const index = Math.round(degrees / 22.5) % 16;
+  const index = Math.round(degrees / 22.5) % 16; // 360 / 16 = 22.5, eliminates fractional part
   return windDirections[index];
 }
 
+// ensure the first letter of each word is capitalised to avoid the API returning an error or duplicating cities
 // https://www.w3docs.com/snippets/javascript/how-to-convert-string-to-title-case-with-javascript.html
 function toTitleCase(str) {
   return str.replace(/\w\S*/g, function(txt) {
@@ -1006,104 +1144,9 @@ function toTitleCase(str) {
   });
 }
 
+// yeah, we haven't been taught how to safely store secrets yet, so this might defeat some GitHub bots...
 function cleverlyObfuscatedSecret() {
   return '87d4b' + '5d4ee' + 'bf3cc71' + 'c9b38b2' + '60b1b8ea';
-}
-
-// ===================================================================================================
-// add default lists of Australian Capitals, New Zealand cities, World Cities to the city select list
-function addStandardCities() {
-  // create an array of objects containing the city name, country code and list name
-  const citiesData = [
-    {cityName: 'Adelaide', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Brisbane', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Canberra', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Darwin', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Hobart', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Melbourne', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Perth', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Sydney', countryCode: 'AU', listName: 'Australian Capitals'},
-    {cityName: 'Auckland', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Christchurch', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Dunedin', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Hamilton', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Napier', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Nelson', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Palmerston North', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Queenstown', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Rotorua', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Tauranga', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Wellington', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Whangarei', countryCode: 'NZ', listName: 'New Zealand Cities'},
-    {cityName: 'Amsterdam', countryCode: 'NL', listName: 'World Cities'},
-    {cityName: 'Bangkok', countryCode: 'TH', listName: 'World Cities'},
-    {cityName: 'Berlin', countryCode: 'DE', listName: 'World Cities'},
-    {cityName: 'Dubai', countryCode: 'AE', listName: 'World Cities'},
-    {cityName: 'Hong Kong', countryCode: 'CN', listName: 'World Cities'},
-    {cityName: 'London', countryCode: 'GB', listName: 'World Cities'},
-    {cityName: 'Los Angeles', countryCode: 'US', listName: 'World Cities'},
-    {cityName: 'New York', countryCode: 'US', listName: 'World Cities'},
-    {cityName: 'Paris', countryCode: 'FR', listName: 'World Cities'},
-    {cityName: 'Rio de Janeiro', countryCode: 'BR', listName: 'World Cities'},
-    {cityName: 'Rome', countryCode: 'IT', listName: 'World Cities'},
-    {cityName: 'Shanghai', countryCode: 'CN', listName: 'World Cities'},
-    {cityName: 'Singapore', countryCode: 'SG', listName: 'World Cities'},
-    {cityName: 'Sydney', countryCode: 'AU', listName: 'World Cities'},
-    {cityName: 'Tokyo', countryCode: 'JP', listName: 'World Cities'},
-  ];
-
-  citiesData.forEach((cityData) => {
-    const newCity = new City(cityData.cityName, cityData.countryCode);
-    newCity.listName = cityData.listName;
-    // add the city to the appropriate list, avoid duplicates
-    addCityToList(newCity);
-  });
-
-  // propagate the favourite cities to the city select list elements as there
-  // can be duplicates due to the different lists
-  propagateFavouriteCities();
-}
-
-// ensure duplicate cities (in different list categories) have the same favourite status
-// return true if any changes were made
-function propagateFavouriteCities() {
-  const favouriteCities = citiesCombinedList.filter((city) => city.isFavourite);
-  const nonFavoriteCities = citiesCombinedList.filter((city) => !city.isFavourite);
-  let foundOne = false;
-  favouriteCities.forEach((city) => {
-    nonFavoriteCities.forEach((nonFavouriteCity) => {
-      if (city.cityName === nonFavouriteCity.cityName && city.countryCode === nonFavouriteCity.countryCode) {
-        nonFavouriteCity.isFavourite = true;
-        foundOne = true;
-      }
-    });
-  });
-
-  // if one was updated, then save the list to local storage
-  if (foundOne) {
-    saveCityList();
-    return true;
-  };
-  return false;
-}
-
-function propagateWeatherInfo() {
-  const favouriteCities = citiesCombinedList.filter((city) => searchCity.cityName === city.cityName && searchCity.countryCode === city.countryCode);
-  favouriteCities.forEach((city) => {
-    city.currentWeather = searchCity.currentWeather.clone();
-    city.fiveDayForecast = searchCity.cloneFiveDayForecast();
-    city.hasData = searchCity.hasData;
-  });
-}
-
-function toggleFavouriteStatus(isFavourite, cityName, countryCode) {
-  const matchingCities = citiesCombinedList.filter((city) => city.cityName === cityName && city.countryCode === countryCode);
-  if (matchingCities.length > 0 ) {
-    matchingCities.forEach((city) => {
-      city.isFavourite = isFavourite;
-    });
-    saveCityList();
-  }
 }
 
 // format a temperature value to 1 decimal place and add the degree symbol
@@ -1114,6 +1157,64 @@ function formatTemperature(temperature) {
 function formatWindSpeed(windSpeed) {
   if (windSpeed === undefined) return '';
   return `${(parseFloat(windSpeed) * 3.6).toFixed(1)} km/h`;
+}
+
+// modal form stuff
+function alertModal(title, message) {
+  $('#alert-modal-title').text(title);
+  $('#alert-modal-text').text(message);
+  $('#alert-modal').modal('show');
+}
+
+// =================================================================================================
+// Event Listeners
+
+// search for a city
+const searchCityButton = document.getElementById('search-city-btn');
+searchCityButton.addEventListener('click', searchForCity);
+
+// validate the search form and search for a city if the form is valid
+async function searchForCity(event) {
+  event.preventDefault();
+  let city = document.getElementById('input-search-city').value.trim();
+  const country = document.getElementById('input-country').value;
+  if (city.length > 0 && country.length > 0) {
+    city = toTitleCase(city);
+    await newCitySearch(city, country);
+  } else {
+    alertModal('Not enough information', 'Please enter a city and choose a country.');
+  }
+}
+
+// search for a city when the user presses the enter key
+async function newCitySearch(cityName, countryCode, listName = 'Search History') {
+  // see if the city is already in the list - saves calling the geo API for lat/long
+  let matchingCities = [];
+  if (listName === 'Favorites') {
+    matchingCities = citiesCombinedList.filter((city) => city.isFavourite && city.cityName === cityName && city.countryCode === countryCode);
+  } else {
+    matchingCities = citiesCombinedList.filter((city) => city.cityName === cityName && city.countryCode === countryCode && city.listName === listName);
+  }
+
+  // set up the searchCity object
+  if (matchingCities.length > 0 ) {
+    // get a copy of the city object
+    searchCity = matchingCities[0].clone();
+  } else {
+    // No match; clear the current city
+    searchCity= new City(cityName, countryCode);
+    searchCity.listName = listName;
+  }
+
+  // all good, so get the weather data
+  const success = await getWeatherData();
+  if (success) {
+    // set the selected city to the search city, save it to the city list and display the forecast
+    cloneSearchToSelected();
+
+    // display the city list
+    populateCityList(listName);
+  }
 }
 
 // 'Favourites' - the list of favourite cities
@@ -1144,7 +1245,7 @@ $('#searched-city-list').on('click', '.list-group-item', async function() {
   const countryCode = cityNameAndCountryCode.split('-')[1];
   if (cityName && countryCode) {
     const listType = $('#current-city-list-name').text();
-    // update the weather data
+    // call the apis and update and display the weather data
     await newCitySearch(cityName, countryCode, listType);
   };
 });
@@ -1170,7 +1271,7 @@ $('#city-list-toolbars').on('click', '.favourite-button', function() {
   };
 });
 
-// detect a click on the delete button
+// detect a click on the delete button and remove the city from the search history list
 $('#city-list-toolbars').on('click', '.delete-button', function() {
   const cityID = $(this).attr('id');
   const cityNameAndCountryCode = cityID.substring(8);
@@ -1184,9 +1285,13 @@ $('#city-list-toolbars').on('click', '.delete-button', function() {
   }
 });
 
-// modal form stuff
-function alertModal(title, message) {
-  $('#alert-modal-title').text(title);
-  $('#alert-modal-text').text(message);
-  $('#alert-modal').modal('show');
-}
+// detect a click on the world-map button and load a new browser tab with a URL to OpenStreetMap with the selectedCity latitude and longitude
+var worldMapButton = document.getElementById('world-map');
+worldMapButton.addEventListener('click', function() {
+  if (selectedCity.latitude && selectedCity.longitude) {
+    const url = `https://www.openstreetmap.org/#map=10/${selectedCity.latitude.toFixed(2)}/${selectedCity.longitude.toFixed(2)}`;
+    // console.log(url);
+    window.open(url, '_blank');
+  };
+});
+
