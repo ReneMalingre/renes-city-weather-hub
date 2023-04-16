@@ -8,6 +8,8 @@
     --bootstrap-success: #28a745;
     --bootstrap-success-50: #28a74588;
     --bootstrap-success-25: #28a74544;
+    --bootstrap-info: #0d6efd;
+    --bootstrap-info-15: #c0d7fc;
 }
 
 .list-group-item{
@@ -21,7 +23,14 @@
 #city-list-toolbars{
     display: none;
     padding: 0;
-    flex: 0 0 84px !important;
+}
+
+.toolbar-one{
+    flex: 0 0 40px !important;
+}
+
+.toolbar-two{
+    flex: 0 0 82px !important;
 }
 
 .list-group-item-action{
@@ -44,9 +53,35 @@
     border-radius: 5px;
 }
 
-@media screen and (min-width: 330px) {
+.hero-weather-details{
+    font-size: 0.8rem;
+    height: 3rem !important;
+}
+
+.custom-small-text{
+    font-size: 0.8rem;
+}
+
+.five-day-weather-icon{
+    width: 4rem;
+    border: var(--bootstrap-info) 2px solid;
+    background-color: var(--bootstrap-info-15);
+    border-radius: 5px;
+}
+
+@media screen and (min-width: 280px) {
     #city-list-toolbars{
         display: block;
     }
 }
+
+@media screen and (min-width: 576px) {
+    .hero-weather-details{
+        font-size: 1.0rem;
+        height: 2.5rem !important;
+    }
     
+    .custom-small-text{
+        font-size: 0.9rem;
+    }
+}

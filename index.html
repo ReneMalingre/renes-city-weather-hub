@@ -19,8 +19,6 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./assets/css/style.css" />
-    <!-- SVG use covered by Pro license -->
-    <!--Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
   </head>
 
   <body class="d-flex flex-column min-vh-100">
@@ -29,22 +27,6 @@
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary bg-opacity-75">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">René's City Weather Hub</a>
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <!-- put navigation elements here-->
-            </ul>
-          </div>
         </div>
       </nav>
     </header>
@@ -61,7 +43,7 @@
             <div class="mb-1">
               <label
                 for="input-search-city"
-                class="form-label fw-semibold fs-6 mb-1"
+                class="form-label fw-semibold mb-1"
                 >Search for a City:</label
               >
               <div id="search-city-help" class="form-text m-0">
@@ -91,7 +73,7 @@
               </button>
             </div>
           </form>
-          <div class="border-top" id="city-list">
+          <div class="" id="city-list">
             <!-- display the name of the list of cities, defaulting to Search History -->
             <div class="container mx-0 px-0">
               <div class="d-flex justify-content-between align-items-baseline">
@@ -136,11 +118,10 @@
                 </div>
               </div>
               <!-- display the list of cities here -->
-              <div
-                class="row d-flex justify-content-between align-items-start px-0 mx-0 mt-2"
-              >
+              <div class="row d-flex justify-content-between align-items-start px-0 mx-0 mt-2">
                 <div class="col list-group pe-1" id="searched-city-list">
                 </div>
+                <!-- the buttons to favourite or delete -->
                 <div class="col" id="city-list-toolbars">
                 </div>
               </div>
@@ -151,11 +132,11 @@
 
         <!-- contains the weather forecast panel -->
         <div class="col container">
-          <div class="card my-2 mx-0" id="hero-city-weather-panel">
+          <div class="card my-2 mx-0 " id="hero-city-weather-panel">
             <div class="card-body">
                     <h5 class="card-title" id="hero-city-name"></h5>
                     <p class="card-text" id="hero-city-date"></p>
-              <div class="d-flex justify-content-start align-items-center flex-wrap text-center align-content-center">
+                    <div class="d-flex justify-content-start align-items-center flex-wrap text-center align-content-center">
                     <img
                       src=""
                       class="weather-icon mx-2"
@@ -168,129 +149,61 @@
             </div>
             <ul class="list-group list-group-flush">
               <li
-                class="list-group-item bg-primary bg-opacity-10"
+                class="list-group-item bg-primary bg-opacity-10 hero-weather-details"
                 id="hero-city-temps"
               >
               </li>
               <li
-                class="list-group-item bg-primary bg-opacity-10"
+                class="list-group-item bg-primary bg-opacity-10 hero-weather-details"
                 id="hero-city-wind"
               >
               </li>
               <li
-                class="list-group-item bg-primary bg-opacity-10"
+                class="list-group-item bg-primary bg-opacity-10 hero-weather-details"
                 id="hero-city-humidity"
               >
               </li>
             </ul>
 
           <!-- 5-day forecast for the hero city -->
+          <div><h5 class="m-2">5-Day Forecast:</h5></div>
           <div
             id="hero-city-forecast-panel"
-            class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 mt-2 mx-0 mb-2 g-1"
+            class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 mt-2 mx-0 mb-2 g-1 custom-small-text"
           >
-            <div class="col">
-              <div id="5-day-forecast-day-1" class="card">
-                <div
-                  class="card-header bg-success bg-opacity-25"
-                  id="5day-Date-1"
-                >
-                  Date
-                </div>
-                <div class="card-body">
-                  <div class="forecast-icon">Icon</div>
-                  <div class="forecast-temp">Temp</div>
-                  <div class="forecast-wind">Wind</div>
-                  <div class="forecast-humidity">Humidity</div>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div id="5-day-forecast-day-2" class="card">
-                <div
-                  class="card-header bg-success bg-opacity-25"
-                  id="5day-Date-2"
-                >
-                  Date
-                </div>
-                <div class="card-body">
-                  <div class="forecast-icon">Icon</div>
-                  <div class="forecast-temp">Temp</div>
-                  <div class="forecast-wind">Wind</div>
-                  <div class="forecast-humidity">Humidity</div>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div id="5-day-forecast-day-3" class="card">
-                <div
-                  class="card-header bg-success bg-opacity-25"
-                  id="5day-Date-3"
-                >
-                  Date
-                </div>
-                <div class="card-body">
-                  <div class="forecast-icon">Icon</div>
-                  <div class="forecast-temp">Temp</div>
-                  <div class="forecast-wind">Wind</div>
-                  <div class="forecast-humidity">Humidity</div>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div id="5-day-forecast-day-4" class="card">
-                <div
-                  class="card-header bg-success bg-opacity-25"
-                  id="5day-Date-4"
-                >
-                  Date
-                </div>
-                <div class="card-body">
-                  <div class="forecast-icon">Icon</div>
-                  <div class="forecast-temp">Temp</div>
-                  <div class="forecast-wind">Wind</div>
-                  <div class="forecast-humidity">Humidity</div>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div id="5-day-forecast-day-5" class="card">
-                <div
-                  class="card-header bg-success bg-opacity-25"
-                  id="5day-Date-5"
-                >
-                  Date
-                </div>
-                <div class="card-body">
-                  <div class="forecast-icon">Icon</div>
-                  <div class="forecast-temp">Temp</div>
-                  <div class="forecast-wind">Wind</div>
-                  <div class="forecast-humidity">Humidity</div>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
         </div>  
         <!-- end of the weather forecast panel -->
       </div>
+
+    </div>
+    <!-- Modal Dialog -->
+    <div class="modal" tabindex="-1" id="alert-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"id="alert-modal-title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="alert-modal-text"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
+    <!-- Footer -->
     <footer class="text-bg-primary bg-opacity-75 py-3 mt-auto">
       <div class="container">
         <div class="row">
           <div class="col-md-4">
             <p class="mb-0">&copy; 2023 René Malingré</p>
           </div>
-          <!-- <div class="col">
-            <button
-              class="btn btn-outline-primary"
-              id="get-weather-button"
-              type="button"
-            >
-              Test
-            </button>
-          </div> -->
           <div class="col-md-6">
             <ul class="list-inline mb-0 text-md-end">
               <li class="list-inline-item">
@@ -313,6 +226,8 @@
       integrity="sha256-EfJOqCcshFS/2TxhArURu3Wn8b/XDA4fbPWKSwZ+1B8="
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+    <script>dayjs.extend(window.dayjs_plugin_utc)</script>
     <script
       src="https://code.jquery.com/jquery-3.6.4.min.js"
       integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="

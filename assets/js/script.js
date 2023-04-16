@@ -11,6 +11,7 @@ class Forecast {
     this.max = 0;
     this.wind = 0;
     this.windDegrees = 0;
+    this.windGust = 0;
     this.humidity = 0;
     this.description = '';
     this.feelsLike = 0;
@@ -26,90 +27,105 @@ class Forecast {
     newForecast.max = this.max;
     newForecast.wind = this.wind;
     newForecast.windDegrees = this.windDegrees;
+    newForecast.windGust = this.windGust;
     newForecast.humidity = this.humidity;
     newForecast.description = this.description;
     newForecast.feelsLike = this.feelsLike;
     newForecast.hasData = this.hasData;
     return newForecast;
   }
+  formattedDate() {
+    if (this.hasData) {
+      return dayjs(this.date).format('D/MM/YYYY');
+    } else {
+      return 'Date: unknown';
+    }
+  }
 
   // display the forecast temperature
-  setTemperature(id, shortFormat, isCurrent) {
+  formattedTemperature(shortFormat, isCurrent) {
     if (this.hasData) {
       if (!shortFormat) {
         let tempIntro = 'Temp: ';
         if (isCurrent) tempIntro = 'Current ' + tempIntro;
-        $(id).text(
-            tempIntro +
+        return tempIntro +
             this.temperature.toFixed(1) +
-            ' °C, feels like: ' +
+            '°C, feels like: ' +
             this.feelsLike.toFixed(1) +
-            ' °C. Min: ' +
+            '°C. Min: ' +
             this.min.toFixed(1) +
-            ' °C, max: ' +
+            '°C, max: ' +
             this.max.toFixed(1) +
-            ' °C',
-        );
+            '°C';
       } else {
-        $(id).text(
-            'Temp: min: ' +
+        return 'Temp: min: ' +
             this.min.toFixed(1) +
-            ' °C, max: ' +
+            '°C, max: ' +
             this.max.toFixed(1) +
-            ' °C',
-        );
+            '°C';
       }
     } else {
-      $(id).text('Temp: unknown');
+      return 'Temp: unknown';
     }
   }
+
+  setTemperature(id, shortFormat, isCurrent) {
+    $(id).text( this.formattedTemperature(shortFormat, isCurrent));
+  }
+  formattedWind(shortFormat) {
+    if (this.hasData) {
+      if (shortFormat) {
+        return 'Wind: ' +
+        formatWindSpeed(this.wind) + ', ' +
+            convertWindDegreesToDirection(this.windDegrees) +
+            (this.windGust > 0 ? '<br>&nbsp;&nbsp;gusts to ' + formatWindSpeed(this.windGust) : '');
+      } else {
+        return 'Current Wind: ' +
+        formatWindSpeed(this.wind) + ', ' +
+            convertWindDegreesToDirection(this.windDegrees) +
+            (this.windGust > 0 ? ', with gusts to ' + formatWindSpeed(this.windGust) : '');
+      }
+    } else {
+      return 'Wind: unknown';
+    }
+  }
+
   // display the forecast wind
   setWind(id, shortFormat) {
+    $(id).text(this.formattedWind(shortFormat));
+  }
+
+  formattedHumidity( shortFormat) {
     if (this.hasData) {
       if (shortFormat) {
-        $(id).text(
-            'Wind: ' +
-            this.wind.toFixed(1) +
-            ' m/s, ' +
-            convertWindDegreesToDirection(this.windDegrees),
-        );
+        return 'Humidity: ' + this.humidity + '%';
       } else {
-        $(id).text(
-            'Current Wind: ' +
-            this.wind.toFixed(1) +
-            ' m/s, ' +
-            convertWindDegreesToDirection(this.windDegrees),
-        );
+        return 'Current Humidity: ' + this.humidity + '%';
       }
     } else {
-      $(id).text('Wind: unknown');
+      return 'Humidity: unknown';
     }
   }
+
   // display the forecast humidity
   setHumidity(id, shortFormat) {
-    if (this.hasData) {
-      if (shortFormat) {
-        $(id).text('Humidity: ' + this.humidity + '%');
-      } else {
-        $(id).text('Current Humidity: ' + this.humidity + '%');
-      }
+    $(id).text(this.formattedHumidity(shortFormat));
+  }
+
+  // display the forecast icon
+  getWeatherIconURL() {
+    if (this.hasData && this.icon.length > 0) {
+      return 'http://openweathermap.org/img/wn/' + this.icon + '@4x.png';
     } else {
-      $(id).text('Humidity: unknown');
+      return '';
     }
   }
-  // display the forecast icon
-  setIcon(id) {
-    if (this.hasData && this.icon.length > 0) {
-      $(id).attr({
-        src: 'http://openweathermap.org/img/wn/' + this.icon + '@4x.png',
-        alt: this.description,
-      });
-    } else {
-      $(id).attr({
-        src: '',
-        alt: '',
-      });
-    }
+
+  setWeatherIcon(id) {
+    $(id).attr({
+      src: this.getWeatherIconURL(),
+      alt: this.description,
+    });
   }
 }
 
@@ -166,6 +182,7 @@ class City {
   }
   // copy info to a new city object
   clone() {
+    this.updateCountryName();
     const newCity = new City(this.cityName, this.countryCode);
     newCity.countryName = this.countryName;
     newCity.stateName = this.stateName;
@@ -229,6 +246,7 @@ class City {
     this.cityName = serialized.cityName;
     this.countryCode = serialized.countryCode;
     this.countryName = serialized.countryName;
+    this.updateCountryName();
     this.stateName = serialized.stateName;
     this.latitude = serialized.latitude;
     this.longitude = serialized.longitude;
@@ -244,7 +262,7 @@ class City {
     $('#hero-city-date').text(this.formatCurrentDate());
 
     // display the current weather icon
-    this.currentWeather.setIcon('#hero-city-icon');
+    this.currentWeather.setWeatherIcon('#hero-city-icon');
     // weather description
     $('#hero-city-description').text(this.currentWeather.description);
 
@@ -254,9 +272,43 @@ class City {
     this.currentWeather.setWind('#hero-city-wind', false);
     // humidity
     this.currentWeather.setHumidity('#hero-city-humidity', false);
+
+    // now do the five day forecast
+    let forecastHTML = '';
+    for (let i = 0; i < this.fiveDayForecast.length; i++) {
+      const thisForecast = this.fiveDayForecast[i];
+      forecastHTML += `<div class="col">
+      <div id="5-day-forecast-day-${i}" class="card">
+        <div
+          class="card-header bg-success bg-opacity-25 fw-bold fs-6"
+          id="5day-Date-${i}"
+        >
+          ${thisForecast.formattedDate()}
+        </div>
+        <div class="card-body p-0">
+          <div class="forecast-icon px-2 m-2"> 
+            <img
+              src="${thisForecast.getWeatherIconURL()}"}
+              class="five-day-weather-icon"
+              alt="${thisForecast.description}"
+              id="five-day-icon-${i}"
+            />
+          </div>
+          <div class="forecast-description fw-bold text-primary px-2 m-2">${thisForecast.description}</div>
+          <div class="forecast-temp bg-success bg-opacity-25 px-2 py-1">${thisForecast.formattedTemperature(true)}</div>
+          <div class="forecast-wind bg-success bg-opacity-10 px-2 py-1">${thisForecast.formattedWind(true)}</div>
+          <div class="forecast-humidity bg-success bg-opacity-25 px-2 py-1">${thisForecast.formattedHumidity(true)}</div>
+          </ul>
+      </div>
+    </div>
+  </div>`;
+    }
+    $('#hero-city-forecast-panel').html(forecastHTML);
   }
 
+
   formatCityName() {
+    this.updateCountryName();
     let cityName = this.cityName;
     if (this.stateName.length > 0) {
       cityName += ', ' + this.stateName;
@@ -286,13 +338,6 @@ var selectedCity = new City('', '');
 // hold the list of cities that have been searched for
 var citiesCombinedList = [];
 
-// List of city list types
-// 'Favourites' - the list of favourite cities
-// 'Search History' - the list of cities that have been searched for
-// 'World Cities' - the list of cities that have been loaded from the world cities file
-// 'Australian Capitals' - the list of Australian Capitals
-// 'New Zealand Cities' - the list of New Zealand cities
-
 
 // ==========================================================================================================
 // Load Existing Data
@@ -319,12 +364,11 @@ async function searchForCity(event) {
   event.preventDefault();
   let city = document.getElementById('input-search-city').value.trim();
   const country = document.getElementById('input-country').value;
-  console.log(city + ' ' + country);
   if (city.length > 0 && country.length > 0) {
     city = toTitleCase(city);
     await newCitySearch(city, country);
   } else {
-    alert('Please enter a city and country');
+    alertModal('Not enough information', 'Please enter a city and choose a country.');
   }
 }
 
@@ -364,14 +408,14 @@ async function getWeatherData() {
     // if not, get the lat and long
     success = await getLatAndLong();
     if (!success) {
-      alert('Could not retrieve the city coordinates');
+      alertModal( 'Problem retrieving geographic info', 'Could not retrieve the city coordinates - it might not exist, or it isn\'t in the OpenWeather geographic database.');
       return false;
     }
   }
   // check again for coordinates
   if (searchCity.latitude == 0 && searchCity.longitude == 0) {
-    alert(
-        'Could not retrieve weather information as the city coordinates could not be found',
+    alertModal('Problem retrieving geographic info',
+        'Could not retrieve any weather information as the city coordinates could not be found.',
     );
     success = false;
   } else {
@@ -380,10 +424,10 @@ async function getWeatherData() {
     if (success) {
       success = await getFiveDayForecast();
       if (!success) {
-        alert('Could not retrieve five day forecast weather information');
+        alertModal('Problem retrieving weather info', 'Could not retrieve five day forecast weather information');
       }
     } else {
-      alert('Could not retrieve weather information');
+      alertModal('Problem retrieving weather info', 'Could not retrieve weather information.');
     }
   }
   // copy weather info over to the selected city in the list
@@ -394,19 +438,14 @@ async function getWeatherData() {
 async function getLatAndLong() {
   const apiKey = cleverlyObfuscatedSecret();
   const url = `http://api.openweathermap.org/geo/1.0/direct?q=${searchCity.cityName},${searchCity.countryCode}&appid=${apiKey}`;
-  console.log(url);
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      console.log(response);
       throw new Error('Error fetching countries');
     }
     // wait for the response to be converted to json
     const data = await response.json();
     if (data) {
-      // console.log('=========================== Lat and Long ===========================');
-      // console.log(data);
-      // console.log('=========================== End Lat and Long ===========================');
       searchCity.latitude = data[0].lat;
       searchCity.longitude = data[0].lon;
       if (data[0].hasOwnProperty('state')) {
@@ -414,18 +453,15 @@ async function getLatAndLong() {
       } else {
         searchCity.stateName = '';
       }
-      // convert to country name
-      // searchCity.countryName = getCountryName(searchCity.countryCode);
       return true;
     } else {
-      console.log('No data');
       searchCity.latitude = 0;
       searchCity.longitude = 0;
       searchCity.stateName = '';
       return false;
     }
   } catch (error) {
-    console.log(error);
+    alertModal('API Error in getLatAndLong', error.message);
     return false;
   }
 }
@@ -435,86 +471,114 @@ async function getFiveDayForecast() {
   const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${searchCity.latitude.toFixed(
       2,
   )}&lon=${searchCity.longitude.toFixed(2)}&appid=${apiKey}&units=metric`;
-  console.log(url);
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      console.log(response);
       throw new Error('Error fetching five day forecasts');
     }
     // wait for the response to be converted to json
     const data = await response.json();
+    let dayForecast = new Forecast();
     if (data) {
-      console.log(
-          '=========================== 5 -Day Forecast ===========================',
-      );
-      console.log(data);
-      console.log(
-          '=========================== End 5 -Day Forecast ===========================',
-      );
-      // display the data on the page
-      // clear the previous data
+      let forecastDateUTC = 0;
+      let currentDate = searchCity.currentWeather.date;
+      let initialisedForecast = false;
+      let forecastIterator = 0;
+      let haveFirstDate = false;
+      for (let i = 0; i < data.list.length; i++) {
+        forecastDateUTC = data.list[i].dt;
+        const forecastDate = dayjs.utc(data.list[i].dt_txt, 'YYYY-MM-DD HH:mm:ss').local();
+        if (forecastDate.isAfter(dayjs(), 'day')) {
+          // this is a forecast for a future day
+
+          // get the first date
+          if (!haveFirstDate) {
+            currentDate = dayjs.utc(data.list[i].dt_txt, 'YYYY-MM-DD HH:mm:ss').local();
+            haveFirstDate = true;
+          }
+          const forecastDate = dayjs.utc(data.list[i].dt_txt, 'YYYY-MM-DD HH:mm:ss').local();
+          if (forecastDate.isSame(currentDate, 'day')) {
+          // this is still current day's forecast
+          // check if it is the first forecast for the day and capture the min and max
+            if (!initialisedForecast) {
+              dayForecast.min = data.list[i].main.temp_min;
+              dayForecast.max = data.list[i].main.temp_max;
+              initialisedForecast = true;
+            } else {
+            // update the min and max for the day
+              if (data.list[i].main.temp_min < dayForecast.min) {
+                dayForecast.min = data.list[i].main.temp_min;
+              }
+              if (data.list[i].main.temp_max > dayForecast.max) {
+                dayForecast.max = data.list[i].main.temp_max;
+              }
+            }
+            // if the time is <=12 pm, capture the weather icon and other stuff
+            if (forecastDate.hour() <= 14) {
+              dayForecast.icon = data.list[i].weather[0].icon;
+              dayForecast.description = data.list[i].weather[0].description;
+              dayForecast.humidity = data.list[i].main.humidity;
+              dayForecast.wind = data.list[i].wind.speed;
+              dayForecast.windDegrees = data.list[i].wind.deg;
+              dayForecast.windGust = data.list[i].wind.gust;
+            }
+          } else {
+          // this is a new day's forecast
+            const thisForecast = searchCity.fiveDayForecast[forecastIterator];
+            thisForecast.date = currentDate;
+            thisForecast.min = dayForecast.min;
+            thisForecast.max = dayForecast.max;
+            thisForecast.icon = dayForecast.icon;
+            thisForecast.description = dayForecast.description;
+            thisForecast.humidity = dayForecast.humidity;
+            thisForecast.wind = dayForecast.wind;
+            thisForecast.windDegrees = dayForecast.windDegrees;
+            thisForecast.windGust = dayForecast.windGust;
+            thisForecast.hasData = true;
+            forecastIterator++;
+            initialisedForecast = false;
+            // set the current date to the new date
+            currentDate = forecastDate;
+            // check if this is the last forecast to be captured in case the data rolls over to the next day
+            if (forecastIterator == 4) {
+              break;
+            } else {
+            // reset the day forecast
+              dayForecast = new Forecast();
+            }
+          }
+        }
+      }
+      // save the final forecast
+      const thisForecast = searchCity.fiveDayForecast[forecastIterator];
+      thisForecast.date = currentDate;
+      thisForecast.min = dayForecast.min;
+      thisForecast.max = dayForecast.max;
+      thisForecast.icon = dayForecast.icon;
+      thisForecast.description = dayForecast.description;
+      thisForecast.humidity = dayForecast.humidity;
+      thisForecast.wind = dayForecast.wind;
+      thisForecast.windDegrees = dayForecast.windDegrees;
+      thisForecast.windGust = dayForecast.windGust;
+      thisForecast.hasData = true;
       return true;
     } else {
-      console.log('No data');
       return false;
     }
   } catch (error) {
-    console.log(error);
+    alertModal('API Error in getFiveDayForecast', error.message);
     return false;
   }
 }
-
-// TODO - dynamically add all of the 5-day forecast elements to the page
-function clearUI5DayForecast() {
-  for (let i = 1; i < 6; i++) {
-    const elementName = '5-day-forecast-day-' + i.toString();
-    const forecastCard = $(`#${elementName}`);
-    // console.log(forecastCard.innerHTML);
-
-    const forecastDate = forecastCard.find('#5day-Date-' + i);
-    // console.log(forecastDate.text());
-    const forecastBody = forecastCard.find('.card-body');
-    // console.log(forecastBody.html());
-    const forecastIcon = forecastBody.find('.forecast-icon');
-    // console.log(forecastIcon.html());
-    const forecastTemp = forecastBody.find('.forecast-temp');
-    // console.log(forecastTemp.html());
-    const forecastWind = forecastBody.find('.forecast-wind');
-    // console.log(forecastWind.html());
-    const forecastHumidity = forecastBody.find('.forecast-humidity');
-    // console.log(forecastHumidity.html());
-    forecastDate.text(i + ' Date');
-    forecastIcon.html(
-        '<img src="http://openweathermap.org/img/wn/01d.png" alt="Clear sky (day)">',
-    );
-    forecastTemp.text(i + ' Temp');
-    forecastWind.text(i + ' Wind');
-    forecastHumidity.text(i + ' Humidity');
-  }
-}
-
-// function updateUICurrentWeather() {
-//   $('#hero-city-name').text(searchCity.cityName + ', ' + (searchCity.stateName.length>0 ? searchCity.stateName + ', ' : '') + searchCity.countryName);
-//   $('#hero-city-date').text('Forecast for today, ' + dayjs().format('dddd, D MMMM, YYYY'));
-//   $('#hero-city-temps').text(searchCity.currentWeather.temperature);
-//   $('#hero-city-wind').text(searchCity.currentWeather.wind);
-//   $('#hero-city-humidity').text(searchCity.currentWeather.humidity);
-//   $('#hero-city-icon').attr('src', 'http://openweathermap.org/img/wn/' + searchCity.currentWeather.icon + '@2x.png' );
-//   $('#hero-city-icon').attr('alt', searchCity.currentWeather.description);
-//   $('#hero-city-description').text(searchCity.currentWeather.description);
-// }
 
 async function getCurrentWeather() {
   const apiKey = cleverlyObfuscatedSecret();
   const url = `http://api.openweathermap.org/data/2.5/weather?lat=${searchCity.latitude.toFixed(
       2,
   )}&lon=${searchCity.longitude.toFixed(2)}&appid=${apiKey}&units=metric`;
-  // console.log(url);
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      console.log(response);
       searchCity.hasData = false;
       searchCity.currentWeather.hasData = false;
       searchCity.fiveDayForecastHasData(false);
@@ -524,8 +588,6 @@ async function getCurrentWeather() {
     // wait for the response to be converted to json
     const data = await response.json();
     if (data) {
-      // console.log( '=========================== Current Weather Data ===========================' );
-      // console.log(data);
       // grab the data and put it into the currentCity object
       searchCity.currentWeather.date = dayjs();
       searchCity.currentWeather.temperature = data.main.temp;
@@ -534,21 +596,19 @@ async function getCurrentWeather() {
       searchCity.currentWeather.max = data.main.temp_max;
       searchCity.currentWeather.wind = data.wind.speed;
       searchCity.currentWeather.windDegrees = data.wind.deg;
+      searchCity.currentWeather.windGust = data.wind.gust;
       searchCity.currentWeather.humidity = data.main.humidity;
       searchCity.currentWeather.icon = data.weather[0].icon;
       searchCity.currentWeather.description = data.weather[0].description;
       searchCity.currentWeather.hasData = true;
       searchCity.hasData = true;
-
-      // console.log( '=========================== End Current Weather Data ===========================' );
       return true;
     } else {
-      console.log('No data');
       return false;
     }
   } catch (error) {
-    console.log(error);
     searchCity.hasData = false;
+    alertModal('API Error in getCurrentWeather', error.message);
     return false;
   }
 }
@@ -569,8 +629,10 @@ $(document).ready(async function() {
   // this populates an array which is used to populate the select list
   // and it enables conversion from country name to country code, so best to do it first
   await hydrateCountryList();
+
   // get the city list out of local storage
   loadCityList();
+
   // load the last city from local storage or use the default city (Adelaide, AU)
   loadLastCity();
   // display the last city, firstly without weather detail just to make the page look nice
@@ -588,7 +650,6 @@ $(document).ready(async function() {
     addSelectedCityToList();
   }
 
-
   // add the standard cities to the list
   addStandardCities(); // saved to local storage after the first run on the browser
 
@@ -602,19 +663,17 @@ $(document).ready(async function() {
 function populateCityList(listName) {
   // clear the list
   $('#current-city-list-name').text(listName);
-
   const favouriteEmoji = '⭐';
-  const cityListParent = $('#searched-city-list');
   let cityListHTML = '';
   let buttonsListHTML = '';
   let showDeleteButton = false;
   let isFavouriteList = false;
   switch (listName) {
     case 'Search History':
+      // only show delete button on search history list
       showDeleteButton = true;
       break;
     case 'Favourites':
-      showDeleteButton = true;
       isFavouriteList = true;
       break;
     default:
@@ -638,25 +697,30 @@ function populateCityList(listName) {
     return unique;
   }, {}));
 
+  const classDeleteButton = (showDeleteButton ? '' : 'd-none');
+  const classButtons = (showDeleteButton ? 'toolbar-two' : 'toolbar-one');
+  $('#city-list-toolbars').removeClass('toolbar-one toolbar-two').addClass(classButtons);
+  $('#city-list-toolbars').addClass(classButtons);
+
   // iterate through the cities in the city list
   uniqueCityArray.forEach((cityInList) => {
-    console.log( cityInList.listName);
     const cityName = cityInList.cityName;
     const countryCode = cityInList.countryCode;
     const cityBadgeId = 'city-badge-' + cityName + '-' + countryCode;
     const cityDivId = 'displayed-city-' + cityName + '-' + countryCode;
     const isCurrentCity = (cityName === selectedCity.cityName && countryCode === selectedCity.countryCode);
     let isFavourite = cityInList.isFavourite;
+
     // if the city is the current city, then use the isFavourite value from the selectedCity object
     if (!isFavourite && isCurrentCity) {
       isFavourite = selectedCity.isFavourite;
       cityInList.isFavourite = isFavourite;
     }
-    const classFavourite = (isFavourite ? 'favourite' : '');
+    const classFavourite = (isFavourite ? 'favourite-city' : '');
     const cityDisplayName = (isFavourite ? favouriteEmoji + ' ' : '') + cityName;
     const classIsCurrentCity = (isCurrentCity ? classFavourite + ' active bg-success' : classFavourite + ' bg-light');
     const classBadgeIsCurrentCity = (isCurrentCity ? 'bg-light text-success' : 'bg-success');
-    const classDeleteButton = (showDeleteButton ? '' : 'd-none');
+
     let currentTemperature = '';
     if (isCurrentCity) {
       // update the current city badge
@@ -667,13 +731,13 @@ function populateCityList(listName) {
     }
 
     // create the city list item
-    cityListHTML += `<div class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action ${classIsCurrentCity} px-1 mx-0 fs-6" 
+    cityListHTML += `<div class="d-flex justify-content-between align-items-baseline list-group-item list-group-item-action ${classIsCurrentCity} px-1 mx-0 fs-6 ${classFavourite}" 
           aria-current="false" id="${cityDivId}">${cityDisplayName}<span class="badge ${classBadgeIsCurrentCity} rounded-pill" id="${cityBadgeId}">${currentTemperature}</span></div>`;
 
     // create the buttons
     buttonsListHTML += `<div class="btn-toolbar justify-content-end" role="toolbar" aria-label="City item functions">
-       <button type="button" class="btn btn-outline-info custom-sml-btn" id="fav-btn-${cityName}-${countryCode}">⭐</button><button type="button" 
-       class="btn btn-outline-info custom-sml-btn ${classDeleteButton}" id="del-btn-${cityName}-${countryCode}">🗑️</button></div>`;
+       <button type="button" class="favourite-button btn btn-outline-info custom-sml-btn" id="fav-btn-${cityName}-${countryCode}">⭐</button><button type="button" 
+       class="delete-button btn btn-outline-info custom-sml-btn ${classDeleteButton}" id="del-btn-${cityName}-${countryCode}">🗑️</button></div>`;
   });
 
   $('#searched-city-list').html(cityListHTML);
@@ -767,24 +831,23 @@ function addCityToList(newCity) {
   }
 }
 
-function removeCityFromList(removedCity) {
+function removeCityFromList(cityName, countryCode, listName) {
   // remove the city from the list of cities
-  // there must be an existing city in the list with the same name, state and country and listName
+  // there must be an existing city in the list with the same name, countryCode and listName
   // if there is then remove it
   for (let i = 0; i < citiesCombinedList.length; i++) {
     if (
-      citiesCombinedList[i].cityName === removedCity.cityName &&
-      citiesCombinedList[i].stateName === removedCity.stateName &&
-      citiesCombinedList[i].countryName === removedCity.countryName &&
-      citiesCombinedList[i].listName === removedCity.listName
+      citiesCombinedList[i].cityName === cityName &&
+      citiesCombinedList[i].countryCode === countryCode &&
+      citiesCombinedList[i].listName === listName
     ) {
       citiesCombinedList.splice(i, 1);
-      break;
+      // save the city list to local storage
+      saveCityList();
+      return true;
     }
   }
-
-  // save the city list to local storage
-  saveCityList();
+  return false;
 }
 
 // Current Weather Data
@@ -811,8 +874,6 @@ function removeCityFromList(removedCity) {
 async function hydrateCountryList() {
   // check local storage for the countries first
   countryList = JSON.parse(localStorage.getItem('countries'));
-  // let baseURL = 'https://api.worldbank.org/v2/country?format=json';
-  // console.log(baseURL);
   const baseURL = 'https://api.worldbank.org/v2/country';
   if (!countryList || countryList.length < 100) {
     // reset the global array that holds the countries
@@ -877,31 +938,35 @@ async function retrieveCountries(baseURL, searchParameters) {
   // create the URL to retrieve the countries one page at a time
   const url = `${baseURL}?${formattedSearchParameters}`;
   // wait for the response from the api
-  const response = await fetch(url);
-  if (!response.ok) {
-    console.log(response);
-    throw new Error('Error fetching countries');
-  }
-  // wait for the response to be converted to json
-  const data = await response.json();
-  // now add the countries to the global array
-  for (let i = 0; i < data[1].length; i++) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Error fetching countries');
+    }
+    // wait for the response to be converted to json
+    const data = await response.json();
+    // now add the countries to the global array
+    for (let i = 0; i < data[1].length; i++) {
     // get a key-value pair of iso2Code and name from the country object
     // but only if it is a country not a region...
-    if (data[1][i].region.id !== 'NA') {
-      const countryObject ={
-        iso2Code: data[1][i].iso2Code,
-        countryName: data[1][i].name,
-      };
-      // add the key-value pair to the global countryList array
-      countryList.push(countryObject);
+      if (data[1][i].region.id !== 'NA') {
+        const countryObject ={
+          iso2Code: data[1][i].iso2Code,
+          countryName: data[1][i].name,
+        };
+        // add the key-value pair to the global countryList array
+        countryList.push(countryObject);
+      }
     }
-  }
-  // check if there are more pages of countries to retrieve
-  if (data[0].pages > searchParameters.page) {
+    // check if there are more pages of countries to retrieve
+    if (data[0].pages > searchParameters.page) {
     // increment the page number and retrieve the next page recursively and await the response
-    searchParameters.page++;
-    await retrieveCountries(baseURL, searchParameters);
+      searchParameters.page++;
+      await retrieveCountries(baseURL, searchParameters);
+    }
+  } catch (error) {
+    alertModal('API Error in retrieveCountries', error.message);
+    return false;
   }
 }
 
@@ -1046,6 +1111,11 @@ function formatTemperature(temperature) {
   return `${temperature.toFixed(1)}°C`;
 };
 
+function formatWindSpeed(windSpeed) {
+  if (windSpeed === undefined) return '';
+  return `${(parseFloat(windSpeed) * 3.6).toFixed(1)} km/h`;
+}
+
 // 'Favourites' - the list of favourite cities
 // 'Search History' - the list of cities that have been searched for
 // 'World Cities' - the list of cities that have been loaded from the world cities file
@@ -1064,7 +1134,6 @@ $('.dropdown-item').click(function() {
     default:
       break;
   }
-  // console.log(selectedAction + " clicked!");
 });
 
 // detect a click on one of the listed cities
@@ -1079,3 +1148,45 @@ $('#searched-city-list').on('click', '.list-group-item', async function() {
     await newCitySearch(cityName, countryCode, listType);
   };
 });
+
+// detect a click on the favourite button
+$('#city-list-toolbars').on('click', '.favourite-button', function() {
+  const cityID = $(this).attr('id');
+  const cityNameAndCountryCode = cityID.substring(8);
+  const cityName= cityNameAndCountryCode.split('-')[0];
+  const countryCode = cityNameAndCountryCode.split('-')[1];
+  if (cityName && countryCode) {
+    // find the city in the list, toggle the favourite status and save the list
+    const matchingCities = citiesCombinedList.filter((city) => city.cityName === cityName && city.countryCode === countryCode);
+    if (matchingCities.length > 0 ) {
+      matchingCities.forEach((city) => {
+        city.isFavourite = !city.isFavourite;
+      });
+      saveCityList();
+    }
+    // now reload the list
+    const listType = $('#current-city-list-name').text();
+    populateCityList(listType);
+  };
+});
+
+// detect a click on the delete button
+$('#city-list-toolbars').on('click', '.delete-button', function() {
+  const cityID = $(this).attr('id');
+  const cityNameAndCountryCode = cityID.substring(8);
+  const cityName= cityNameAndCountryCode.split('-')[0];
+  const countryCode = cityNameAndCountryCode.split('-')[1];
+  if (cityName && countryCode) {
+    // find the city in the list, toggle the favourite status and save the list
+    if ( removeCityFromList(cityName, countryCode, 'Search History')) {
+      populateCityList('Search History');
+    }
+  }
+});
+
+// modal form stuff
+function alertModal(title, message) {
+  $('#alert-modal-title').text(title);
+  $('#alert-modal-text').text(message);
+  $('#alert-modal').modal('show');
+}
