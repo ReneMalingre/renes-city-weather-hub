@@ -1,4 +1,5 @@
 :root{
+    /* set up the custom css variables */
     --favourite-color: #ff0;
     --favourite-background: #a6c8ff;
     --city-list-height: 2.6rem;
@@ -12,6 +13,7 @@
     --bootstrap-info-15: #c0d7fc;
 }
 
+/* use custom height for list items, equivalent to the buttons */
 .list-group-item{
     height: var(--city-list-height);
 }
@@ -20,11 +22,13 @@
     height: var(--city-list-height);
 }
 
+/* hide the toolbar buttons on the list items for extra small screens */
 #city-list-toolbars{
     display: none;
     padding: 0;
 }
 
+/* size the button area in the list depending on if there is one or two buttons */
 .toolbar-one{
     flex: 0 0 40px !important;
 }
@@ -33,10 +37,12 @@
     flex: 0 0 82px !important;
 }
 
+/* make the mouse cursor indicate that these items can be clicked */
 .list-group-item-action, #world-map{
     cursor: pointer;
 }
 
+/* hover over indicator for mouse position feedback and looks */
 .list-group-item-action:not(.active):hover{
     background-color: var(--active-list-item-background-hover) !important;
 }
@@ -46,6 +52,7 @@
     margin: 2px;
 }
 
+/* format the current weather conditions icon */
 .weather-icon{
     width: 8rem;
     border: var(--bootstrap-success) 2px solid;
@@ -53,6 +60,7 @@
     border-radius: 5px;
 }
 
+/* have the text smaller for small/mobile screens */
 .hero-weather-details{
     font-size: 0.8rem;
     height: 3rem !important;
@@ -69,13 +77,28 @@
     border-radius: 5px;
 }
 
+/* format the clickable world map to small on xs screens */
+#world-map {
+    height: 16px;
+    width: 16px;
+}
+
+/* Media queries */
 @media screen and (min-width: 280px) {
+    /* display the favourite and delete icons for all but extra small screens */
     #city-list-toolbars{
         display: block;
+    }
+
+    /* format the clickable world map to normal size on most screen sizes */
+    #world-map {
+        height: 32px;
+        width: 32px;
     }
 }
 
 @media screen and (min-width: 576px) {
+    /* text sizing for desktops and tablets */
     .hero-weather-details{
         font-size: 1.0rem;
         height: 2.5rem !important;
@@ -84,4 +107,5 @@
     .custom-small-text{
         font-size: 0.9rem;
     }
+
 }

@@ -148,10 +148,15 @@ class Forecast {
 // and the geographic info and the city list name, and if it is a favourite
 class City {
   constructor(cityName, countryCode) {
-    this.cityName = cityName; // the city name (e.g. 'London' in Title Case)
+    this.clearData(cityName, countryCode);
+  }
+
+  // wipe the city data
+  clearData(cityName = '', countryCode ='') {
+    this.cityName = cityName;// the city name (e.g. 'London' in Title Case)
     this.countryCode = countryCode; // the country code (e.g. 'GB' for the UK, iso2Code from the country list)
     this.countryName = ''; // the country name (e.g. 'United Kingdom')
-    this.stateName = ''; // the state name (e.g. 'England')
+    this.stateName = '';// the state name (e.g. 'England')
     this.latitude = 0; // the latitude of the city
     this.longitude = 0; // the longitude of the city
     this.currentWeather = new Forecast(); // the current weather forecast
@@ -162,11 +167,12 @@ class City {
       new Forecast(),
       new Forecast(),
     ];
-    this.hasData = false; // true if the city has data
     this.listName = ''; // the name of the city list that this city is in eg search history, world cities, Australian Capitals, New Zealand Cities
-    this.isFavourite = false; // true if this city is a favourite
+    this.hasData = false; // true if the city has data
+    this.isFavourite = false; ; // true if this city is a favourite, becomes part of the favourite list
     this.updateCountryName(); // update the country name based on the country code
   }
+
   // update the country name based on the country code (if it is not already set)
   updateCountryName() {
     if (this.countryCode && !(this.countryName)) {
@@ -175,27 +181,6 @@ class City {
         this.countryName = foundCountry.countryName;
       }
     }
-  }
-
-  // wipe the city data
-  clearData() {
-    this.cityName = '';
-    this.countryCode = '';
-    this.countryName = '';
-    this.stateName = '';
-    this.latitude = 0;
-    this.longitude = 0;
-    this.currentWeather = new Forecast();
-    this.fiveDayForecast = [
-      new Forecast(),
-      new Forecast(),
-      new Forecast(),
-      new Forecast(),
-      new Forecast(),
-    ];
-    this.listName = '';
-    this.hasData = false;
-    this.isFavourite = false;
   }
 
   // copy info to a new city object (don't always want to pass a city by reference)
@@ -389,7 +374,8 @@ $(document).ready(async function() {
   // hence why this is the first thing done. T
   // The API call is redundant after the first run, as local storage is then used for the list
   await hydrateCountryList();
-
+  console.log( (3.7 % 1 === 0));
+  console.log( (3 % 1 === 0));
   // get the city list out of local storage, if it exists
   loadCityList();
 
@@ -730,9 +716,7 @@ async function hydrateCountryList() {
   const countrySelect = document.getElementById('input-country');
   // clear the select list
   countrySelect.innerHTML = '';
-  // add back the instruction option plus Australia and New Zealand
-  // and US and UK
-  // addCountryToSelect(countrySelect, '', 'Choose the country');
+  // add Australia and New Zealand and US and UK to top of country list
   addCountryToSelect(countrySelect, 'AU', 'Australia');
   addCountryToSelect(countrySelect, 'NZ', 'New Zealand');
   addCountryToSelect(countrySelect, 'US', 'United States');
@@ -747,9 +731,9 @@ async function hydrateCountryList() {
     // ignore AU and NZ etc because we've already added them
     if (
       !(
+        key === '' ||
         key === 'AU' ||
         key === 'NZ' ||
-        key === '' ||
         key === 'US' ||
         key === 'GB'
       )
@@ -821,28 +805,23 @@ async function getWeatherData() {
     // if not, get the lat and long
     success = await getLatAndLong();
     if (!success) {
-      alertModal( 'Problem retrieving geographic info', 'Could not retrieve the city coordinates - it might not exist, or it isn\'t in the OpenWeather geographic database.');
+      // no coordinates returned
+      alertModal( 'Problem retrieving geographic info', 'Could not retrieve the city coordinates - it might not exist, or it isn\'t in the OpenWeatherMap geographic database.');
       return false;
     }
   }
-  // check again for coordinates
-  if (searchCity.latitude == 0 && searchCity.longitude == 0) {
-    alertModal('Problem retrieving geographic info',
-        'Could not retrieve any weather information as the city coordinates could not be found.',
-    );
-    success = false;
-  } else {
-    // have coordinates, so get the weather data
-    let success = await getCurrentWeather();
-    if (success) {
-      success = await getFiveDayForecast();
-      if (!success) {
-        alertModal('Problem retrieving weather info', 'Could not retrieve five day forecast weather information');
-      }
-    } else {
-      alertModal('Problem retrieving weather info', 'Could not retrieve weather information.');
+
+  // have coordinates, so get the weather data
+  success = await getCurrentWeather();
+  if (success) {
+    success = await getFiveDayForecast();
+    if (!success) {
+      alertModal('Problem retrieving weather info', 'Could not retrieve five day forecast weather information');
     }
+  } else {
+    alertModal('Problem retrieving weather info', 'Could not retrieve weather information.');
   }
+
   // copy weather info over to the selected city in the list so can display it from different lists
   // and populate the badges in the different lists this city is in
   propagateWeatherInfo();
@@ -850,7 +829,7 @@ async function getWeatherData() {
 }
 
 // convert the city name and country code to latitude and longitude
-// using the OpenWeather geo api
+// using the OpenWeatherMap geo api
 async function getLatAndLong() {
   const apiKey = cleverlyObfuscatedSecret();
   const url = `https://api.openweathermap.org/geo/1.0/direct?q=${searchCity.cityName},${searchCity.countryCode}&appid=${apiKey}`;
@@ -871,7 +850,7 @@ async function getLatAndLong() {
       } else {
         searchCity.stateName = '';
       }
-      return true;
+      return (searchCity.latitude && searchCity.longitude);
     } else {
       searchCity.latitude = 0;
       searchCity.longitude = 0;
@@ -885,7 +864,7 @@ async function getLatAndLong() {
 }
 
 // this function retrieves the current weather for the city searchCity
-// using the OpenWeather api
+// using the OpenWeatherMap api
 async function getCurrentWeather() {
   const apiKey = cleverlyObfuscatedSecret();
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${searchCity.latitude.toFixed(
@@ -929,7 +908,7 @@ async function getCurrentWeather() {
 }
 
 // this function retrieves the five day forecast for the searchCity
-// using the OpenWeather api
+// using the OpenWeatherMap api
 async function getFiveDayForecast() {
   const apiKey = cleverlyObfuscatedSecret();
   const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${searchCity.latitude.toFixed(
@@ -1162,8 +1141,8 @@ function toTitleCase(str) {
   });
 }
 
-// yeah, we haven't been taught how to safely store secrets yet, so this might defeat some GitHub bots...
-function cleverlyObfuscatedSecret() {
+// OpenWeatherMap API key is slightly obfuscated to avoid bots scraping it
+function cleverlyObfuscatedSecret() { // sarcasm
   return '87d4b' + '5d4ee' + 'bf3cc71' + 'c9b38b2' + '60b1b8ea';
 }
 
@@ -1172,6 +1151,7 @@ function formatTemperature(temperature) {
   return `${temperature.toFixed(1)}°C`;
 };
 
+// format a wind speed value to 1 decimal place and add the km/h unit
 function formatWindSpeed(windSpeed) {
   if (windSpeed === undefined) return '';
   return `${(parseFloat(windSpeed) * 3.6).toFixed(1)} km/h`;
