@@ -23,7 +23,7 @@
 
   <body class="d-flex flex-column min-vh-100">
     <header>
-      <!-- Bootstrap Navbar (really just for practicing using Bootstrap, it has no functionality beyond displaying the name of the site) -->
+      <!-- Bootstrap Navbar allowing for future expansion -->
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
           <h4 class="text-bg-primary">René's City Weather Hub</h4>
@@ -136,6 +136,7 @@
         <div class="col container">
           <div class="card my-2 mx-0 " id="hero-city-weather-panel">
             <div class="card-body">
+                <!-- current city name, date, weather icon and description, and a world map icon to link to a map page -->
                 <div class="d-flex justify-content-start align-items-baseline">
                     <h5 class="card-title" id="hero-city-name"></h5>
                     <p id="world-map">&nbsp;🌏</p>
@@ -152,6 +153,7 @@
                </div>
               </div>
             </div>
+            <!-- current weather details -->
             <ul class="list-group list-group-flush">
               <li
                 class="list-group-item bg-primary bg-opacity-10 hero-weather-details"
@@ -176,7 +178,6 @@
             id="hero-city-forecast-panel"
             class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 mt-2 mx-0 mb-2 g-1 custom-small-text"
           >
-            
           </div>
         </div>
         </div>  
@@ -184,8 +185,9 @@
       </section>
 
     </div>
-    <!-- Modal Dialog -->
-    <div class="modal" tabindex="-1" id="alert-modal">
+    
+    <!-- Modal Dialog for error alerts -->
+    <section class="modal" tabindex="-1" id="alert-modal">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -200,7 +202,8 @@
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
     <!-- Footer -->
     <footer class="text-bg-primary bg-opacity-75 py-3 mt-auto">
       <div class="container">
@@ -222,6 +225,9 @@
         </div>
       </div>
     </footer>
+    <!-- end of Footer -->
+
+    <!-- JavaScript imports -->
     <!-- Day.js Date Time API
       https://day.js.org/
       latest Day.js as of 6 April 2023 -->
@@ -230,18 +236,24 @@
       integrity="sha256-EfJOqCcshFS/2TxhArURu3Wn8b/XDA4fbPWKSwZ+1B8="
       crossorigin="anonymous"
     ></script>
+    <!-- allow some UTC functions in dayjs -->
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
     <script>dayjs.extend(window.dayjs_plugin_utc)</script>
+    <!-- jQuery -->
     <script
       src="https://code.jquery.com/jquery-3.6.4.min.js"
       integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
       crossorigin="anonymous"
     ></script>
+    <!-- Bootstrap -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
       crossorigin="anonymous"
     ></script>
+    
+    <!-- Custom script -->
     <script src="./assets/js/script.js"></script>
+
   </body>
 </html>

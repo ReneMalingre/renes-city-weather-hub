@@ -1,8 +1,8 @@
 // ==========================================================================================================
-// Class Definitions
-
+// ! Class Definitions
 // ==========================================================================================================
-// Forecast class
+
+// * Forecast class
 // class to hold the forecast data, generalised for current weather and 5 day forecast
 // used to store the data from the API call
 // contained within the City class for typical use case
@@ -126,7 +126,7 @@ class Forecast {
   // return the URL of the weather icon
   getWeatherIconURL() {
     if (this.hasData && this.icon.length > 0) {
-      return 'http://openweathermap.org/img/wn/' + this.icon + '@4x.png';
+      return 'https://openweathermap.org/img/wn/' + this.icon + '@4x.png';
     } else {
       return '';
     }
@@ -143,7 +143,7 @@ class Forecast {
 
 
 // =================================================================================================
-// City class
+// * City class
 // Holds all the data for a city, including the current weather and the 5 day forecast
 // and the geographic info and the city list name, and if it is a favourite
 class City {
@@ -361,7 +361,7 @@ class City {
 // ================================= End of Class Definitions ===============================================
 
 // ==========================================================================================================
-// GLOBALS
+// ! GLOBALS
 // ==========================================================================================================
 // array of Country objects, which hold country codes and names - used to convert country code to country name and vice versa
 let countryList = [];
@@ -377,7 +377,7 @@ var selectedCity = new City('', '');
 var citiesCombinedList = [];
 
 // ==========================================================================================================
-// Main Entrance Point to Web Application
+// ! Main Entrance Point to Web Application
 // ==========================================================================================================
 $(document).ready(async function() {
   // firstly populate the country select list
@@ -427,9 +427,25 @@ $(document).ready(async function() {
   populateCityList('Search History');
 });
 
+// ==========================================================================================================
+// ! Convert the search results into displayed results
+// ==========================================================================================================
+// now that have obtained data from the API, stored it into the the searchCity object,
+// copy the data into to the selectedCity object for displaying to the page
+// and saving to local storage if it is new
+function cloneSearchToSelected() {
+  selectedCity = searchCity.clone();
+  // save the selected city to local storage
+  selectedCity.saveAsDefault();
+  // update the hero UI with the current weather data
+  selectedCity.displayCityAndForecastToPage();
+  // ensure the selected city is saved to the overall city list
+  addSelectedCityToList();
+}
+
 
 // ==========================================================================================================
-// Load Existing Data
+// ! CRUD functions for the city list
 // ==========================================================================================================
 // Load default city
 function loadLastCity() {
@@ -631,6 +647,7 @@ function propagateFavouriteCities() {
   return false;
 }
 
+// copy the weather info to all instances of the selected city
 function propagateWeatherInfo() {
   const favouriteCities = citiesCombinedList.filter((city) => searchCity.cityName === city.cityName && searchCity.countryCode === city.countryCode);
   favouriteCities.forEach((city) => {
@@ -638,17 +655,6 @@ function propagateWeatherInfo() {
     city.fiveDayForecast = searchCity.cloneFiveDayForecast();
     city.hasData = searchCity.hasData;
   });
-}
-
-// copy the searchCity object to the selectedCity object
-function cloneSearchToSelected() {
-  selectedCity = searchCity.clone();
-  // save the selected city to local storage
-  selectedCity.saveAsDefault();
-  // update the hero UI with the current weather data
-  selectedCity.displayCityAndForecastToPage();
-  // ensure the selected city is saved to the overall city list
-  addSelectedCityToList();
 }
 
 // set or reset the favourite status of the selected city, and as the city may appear on multiple lists, update all instances
@@ -662,26 +668,39 @@ function toggleFavouriteStatus(isFavourite, cityName, countryCode) {
   }
 }
 
+// sort the country list by country name
+function sortCountryList() {
+  countryList.sort((a, b) => {
+    return a.countryName.localeCompare(b.countryName);
+  });
+}
 
 // =================================================================================================
-// API Calls and API information
+// ! API Calls and API information
 // =================================================================================================
-// API Documentation: https://openweathermap.org/current
 // Current Weather Data
-// http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
+// API Documentation: https://openweathermap.org/current
+// https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
 // NB: it seems to want the lat and lon to be in decimal degrees to two decimal places only
+
 // 5 Day / 3 Hour Forecast
-// http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
-// Geocoding API http://openweathermap.org/api/geocoding-api
-// http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
+// API Documentation: https://openweathermap.org/forecast5
+// https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+
+// Geocoding API
+// API Documentation https://openweathermap.org/api/geocoding-api
+// https://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
 // {city name} is obviously the city name
 // {state code} is the US state code only
 // {country code} is the ISO 3166-2 country code
 // {limit} is the number of results to return (up to 5 can be returned)
-// World Bank Country list http://api.worldbank.org/v2/country?format=json&per_page=50&page=2
+// World Bank Country list https://api.worldbank.org/v2/country?format=json&per_page=50&page=2
 
 
 // ========================= World Bank API ==================================================
+// https://datahelpdesk.worldbank.org/knowledgebase/articles/898581-api-basic-call-structures
+// NB this page may not display correctly in Google Chrome
+
 // get all of the country codes from the world bank so that the user can select a country and
 // we can use the country code for the weather api
 // this is a bit tricky because the world bank api only returns 50 countries per page
@@ -790,11 +809,11 @@ async function retrieveCountries(baseURL, searchParameters) {
   }
 }
 
-
 // here is where the magic happens and the weather data is retrieved
 // using the searchCity object to hold the city and country info
 // calls the geo api to get the lat and long for the city if necessary
 // then calls the weather api to get the current weather and the 5 day forecast
+// using the open weather api
 async function getWeatherData() {
   // see if we already have latitude and longitude for the city
   let success = true;
@@ -824,18 +843,21 @@ async function getWeatherData() {
       alertModal('Problem retrieving weather info', 'Could not retrieve weather information.');
     }
   }
-  // copy weather info over to the selected city in the list
+  // copy weather info over to the selected city in the list so can display it from different lists
+  // and populate the badges in the different lists this city is in
   propagateWeatherInfo();
   return success;
 }
 
+// convert the city name and country code to latitude and longitude
+// using the OpenWeather geo api
 async function getLatAndLong() {
   const apiKey = cleverlyObfuscatedSecret();
-  const url = `http://api.openweathermap.org/geo/1.0/direct?q=${searchCity.cityName},${searchCity.countryCode}&appid=${apiKey}`;
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${searchCity.cityName},${searchCity.countryCode}&appid=${apiKey}`;
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error('Error fetching countries');
+      throw new Error('Error fetching the latitude and longitude of the city');
     }
     // wait for the response to be converted to json
     const data = await response.json();
@@ -863,9 +885,10 @@ async function getLatAndLong() {
 }
 
 // this function retrieves the current weather for the city searchCity
+// using the OpenWeather api
 async function getCurrentWeather() {
   const apiKey = cleverlyObfuscatedSecret();
-  const url = `http://api.openweathermap.org/data/2.5/weather?lat=${searchCity.latitude.toFixed(
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${searchCity.latitude.toFixed(
       2,
   )}&lon=${searchCity.longitude.toFixed(2)}&appid=${apiKey}&units=metric`;
   try {
@@ -906,9 +929,10 @@ async function getCurrentWeather() {
 }
 
 // this function retrieves the five day forecast for the searchCity
+// using the OpenWeather api
 async function getFiveDayForecast() {
   const apiKey = cleverlyObfuscatedSecret();
-  const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${searchCity.latitude.toFixed(
+  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${searchCity.latitude.toFixed(
       2,
   )}&lon=${searchCity.longitude.toFixed(2)}&appid=${apiKey}&units=metric`;
   try {
@@ -965,16 +989,7 @@ async function getFiveDayForecast() {
           } else {
           // this is a new day's forecast
             const thisForecast = searchCity.fiveDayForecast[forecastIterator];
-            thisForecast.date = currentDate;
-            thisForecast.min = dayForecast.min;
-            thisForecast.max = dayForecast.max;
-            thisForecast.icon = dayForecast.icon;
-            thisForecast.description = dayForecast.description;
-            thisForecast.humidity = dayForecast.humidity;
-            thisForecast.wind = dayForecast.wind;
-            thisForecast.windDegrees = dayForecast.windDegrees;
-            thisForecast.windGust = dayForecast.windGust;
-            thisForecast.hasData = true;
+            saveDateForeCast(currentDate, thisForecast, dayForecast);
             forecastIterator++;
             initialisedForecast = false;
             // set the current date to the new date
@@ -991,16 +1006,7 @@ async function getFiveDayForecast() {
       }
       // save the final forecast
       const thisForecast = searchCity.fiveDayForecast[forecastIterator];
-      thisForecast.date = currentDate;
-      thisForecast.min = dayForecast.min;
-      thisForecast.max = dayForecast.max;
-      thisForecast.icon = dayForecast.icon;
-      thisForecast.description = dayForecast.description;
-      thisForecast.humidity = dayForecast.humidity;
-      thisForecast.wind = dayForecast.wind;
-      thisForecast.windDegrees = dayForecast.windDegrees;
-      thisForecast.windGust = dayForecast.windGust;
-      thisForecast.hasData = true;
+      saveDateForeCast(currentDate, thisForecast, dayForecast);
       return true;
     } else {
       return false;
@@ -1010,9 +1016,24 @@ async function getFiveDayForecast() {
     return false;
   }
 }
-// ====================================================================================================
 
-// Display the selected list of cities
+// copy the new forecast data into the destination 5-day forecast
+function saveDateForeCast(forecastDate, destinationForecast, dataForecast) {
+  destinationForecast.date = forecastDate;
+  destinationForecast.min = dataForecast.min;
+  destinationForecast.max = dataForecast.max;
+  destinationForecast.icon = dataForecast.icon;
+  destinationForecast.description = dataForecast.description;
+  destinationForecast.humidity = dataForecast.humidity;
+  destinationForecast.wind = dataForecast.wind;
+  destinationForecast.windDegrees = dataForecast.windDegrees;
+  destinationForecast.windGust = dataForecast.windGust;
+  destinationForecast.hasData = true;
+}
+
+// ====================================================================================================
+// ! Display the selected list of cities
+// ====================================================================================================
 function populateCityList(listName) {
   // clear the list
   $('#current-city-list-name').text(listName);
@@ -1103,14 +1124,8 @@ function populateCityList(listName) {
 }
 
 // ====================================================================================================
-// Utility functions
-
-// sort the country list by country name
-function sortCountryList() {
-  countryList.sort((a, b) => {
-    return a.countryName.localeCompare(b.countryName);
-  });
-}
+// ! Utility functions
+// ====================================================================================================
 
 // translate the wind direction degrees to a compass direction
 function convertWindDegreesToDirection(degrees) {
@@ -1167,8 +1182,8 @@ function alertModal(title, message) {
 }
 
 // =================================================================================================
-// Event Listeners
-
+// ! Event Listeners
+// =================================================================================================
 // search for a city
 const searchCityButton = document.getElementById('search-city-btn');
 searchCityButton.addEventListener('click', searchForCity);
