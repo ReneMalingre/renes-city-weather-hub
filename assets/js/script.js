@@ -1037,6 +1037,9 @@ function saveDateForeCast(forecastDate, destinationForecast, dataForecast) {
 function populateCityList(listName) {
   // clear the list
   $('#current-city-list-name').text(listName);
+  // clear the search box
+  $('#input-search-city').val('');
+  // set the favourite emoji
   const favouriteEmoji = '⭐';
   let cityListHTML = '';
   let buttonsListHTML = '';
@@ -1259,6 +1262,8 @@ $('#searched-city-list').on('click', '.list-group-item', async function() {
   const cityName= cityNameAndCountryCode.split('-')[0];
   const countryCode = cityNameAndCountryCode.split('-')[1];
   if (cityName && countryCode) {
+    // clear the city search box
+    $('#input-search-city').val('');
     const listType = $('#current-city-list-name').text();
     // call the apis and update and display the weather data
     await newCitySearch(cityName, countryCode, listType);
