@@ -1,209 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>René's City Weather Hub</title>
+    <meta
+      name="description"
+      content="Get a 5-day weather forecast for your favourite city." />
+    <!-- Bootstrap CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+      crossorigin="anonymous" />
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>René's City Weather Hub</title>
-  <meta name="description" content="Get a 5-day weather forecast for your favourite city.">
-  <!-- Bootstrap CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <!-- favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./assets/images/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./assets/images/favicon-32x32.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./assets/images/favicon-16x16.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./assets/images/favicon.ico" />
+  </head>
 
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="./assets/css/style.css">
-  <!-- favicon -->
-  <link rel="apple-touch-icon" sizes="180x180" href="./assets/images/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/favicon-16x16.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/favicon.ico">
-</head>
+  <body class="d-flex flex-column min-vh-100">
+    <header>
+      <!-- Bootstrap Navbar allowing for future expansion -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid justify-content-start">
+          <!-- insert favicon image -->
+          <img
+            src="./assets/images/favicon-32x32.png"
+            alt="favicon"
+            width="32"
+            height="32"
+            class="d-inline-block align-text-top me-3" />
+          <h4 class="text-bg-primary">René's City Weather Hub</h4>
+        </div>
+      </nav>
+    </header>
 
-<body class="d-flex flex-column min-vh-100">
-  <header>
-    <!-- Bootstrap Navbar allowing for future expansion -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container-fluid justify-content-start">
-        <!-- insert favicon image -->
-        <img src="./assets/images/favicon-32x32.png" alt="favicon" width="32" height="32" class="d-inline-block align-text-top me-3">
-        <h4 class="text-bg-primary">René's City Weather Hub</h4>
-      </div>
-    </nav>
-  </header>
-
-  <!-- main content held in one large Bootstrap container -->
-  <div class="container-fluid">
-    <!-- one row, two columns,
+    <!-- main content held in one large Bootstrap container -->
+    <div class="container-fluid">
+      <!-- one row, two columns,
         the first column holds the city search form and the list of cities
         the second holds the current weather and the 5-day forecast -->
-    <section class="row">
-      <!-- contains the Cities search panel and cities list -->
-      <div class="col container col-12 col-sm-12 col-md-4 col-lg-3" id="cities-search-panel">
-        <!-- search form to find a city -->
-        <form class="mb-2">
-          <div class="mb-1">
-            <label for="input-search-city" class="form-label fw-semibold mb-1">Search for a City:</label>
-            <div id="search-city-help" class="form-text m-0">
-              Enter the full name of the city.
-            </div>
-            <input type="text" class="form-control" id="input-search-city" aria-describedby="search-city-help" />
+      <section class="row">
+        <!-- contains the Cities search panel and cities list -->
+        <div
+          class="col container col-12 col-sm-12 col-md-4 col-lg-3"
+          id="cities-search-panel">
+          <!-- search form to find a city -->
+          <form class="mb-2">
+            <div class="mb-1">
+              <label for="input-search-city" class="form-label fw-semibold mb-1"
+                >Search for a City:</label
+              >
+              <div id="search-city-help" class="form-text m-0">
+                Enter the full name of the city.
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                id="input-search-city"
+                aria-describedby="search-city-help" />
 
-            <select class="form-select form-select-sm mt-1" aria-label=".form-select-sm example" id="input-country">
-            </select>
+              <select
+                class="form-select form-select-sm mt-1"
+                aria-label=".form-select-sm example"
+                id="input-country"></select>
+            </div>
+            <div class="d-grid">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="search-city-btn">
+                Search
+              </button>
+            </div>
+          </form>
+          <div class="" id="city-list">
+            <!-- display the name of the list of cities, defaulting to Search History -->
+            <div class="container mx-0 px-0">
+              <div class="d-flex justify-content-between align-items-baseline">
+                <p
+                  class="fw-semibold fs-5 text-success mb-1 mx-0"
+                  id="current-city-list-name">
+                  Search History
+                </p>
+                <div class="nav-item dropdown mx-1 mb-1" id="myDropdown">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    List
+                  </a>
+                  <!-- allow user to select from different city lists from this Bootstrap dropdown select -->
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item" href="#">Search History</a>
+                    </li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li><a class="dropdown-item" href="#">Favourites</a></li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#">Australian Capitals</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#">New Zealand Cities</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#">World Cities</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- display the list of cities here -->
+              <div
+                class="row d-flex justify-content-between align-items-start px-0 mx-0 mt-2">
+                <div class="col list-group pe-1" id="searched-city-list"></div>
+                <!-- the buttons to favourite or delete -->
+                <div class="col" id="city-list-toolbars"></div>
+              </div>
+            </div>
           </div>
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary" id="search-city-btn">
-              Search
+        </div>
+        <!-- end of Cities search panel -->
+
+        <!-- contains the weather forecast panel -->
+        <div class="col container">
+          <div class="card my-2 mx-0" id="hero-city-weather-panel">
+            <div class="card-body">
+              <!-- current city name, date, weather icon and description, and a world map icon to link to a map page -->
+              <div class="d-flex justify-content-start align-content-end">
+                <h5 class="card-title" id="hero-city-name"></h5>
+                <!-- insert map image -->
+                <img
+                  id="world-map"
+                  src="./assets/images/favicon-32x32.png"
+                  alt="map link to map tab"
+                  class="d-inline-block ms-3" />
+              </div>
+              <p class="card-text" id="hero-city-date"></p>
+              <div
+                class="d-flex justify-content-start align-items-center flex-wrap text-center align-content-center">
+                <img
+                  src=""
+                  class="weather-icon mx-2"
+                  alt=""
+                  id="hero-city-icon" />
+                <p
+                  class="fw-bold fs-5 text-success mx-2"
+                  id="hero-city-description"></p>
+              </div>
+            </div>
+          </div>
+          <!-- current weather details -->
+          <ul class="list-group list-group-flush">
+            <li
+              class="list-group-item bg-primary bg-opacity-10 hero-weather-details"
+              id="hero-city-temps"></li>
+            <li
+              class="list-group-item bg-primary bg-opacity-10 hero-weather-details"
+              id="hero-city-wind"></li>
+            <li
+              class="list-group-item bg-primary bg-opacity-10 hero-weather-details"
+              id="hero-city-humidity"></li>
+          </ul>
+
+          <!-- 5-day forecast for the hero city -->
+          <div>
+            <h5 class="m-2">5-Day Forecast:</h5>
+          </div>
+          <div
+            id="hero-city-forecast-panel"
+            class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 mt-2 mx-0 mb-2 g-1 custom-small-text"></div>
+        </div>
+      </section>
+      <!-- end of the weather forecast panel -->
+    </div>
+
+    <!-- Bootstrap Modal Dialog for error alerts -->
+    <section class="modal" tabindex="-1" id="alert-modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="alert-modal-title"></h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="alert-modal-text"></p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal">
+              Close
             </button>
           </div>
-        </form>
-        <div class="" id="city-list">
-          <!-- display the name of the list of cities, defaulting to Search History -->
-          <div class="container mx-0 px-0">
-            <div class="d-flex justify-content-between align-items-baseline">
-              <p class="fw-semibold fs-5 text-success mb-1 mx-0" id="current-city-list-name">
-                Search History
-              </p>
-              <div class="nav-item dropdown mx-1 mb-1" id="myDropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                  aria-expanded="false">
-                  List
-                </a>
-                <!-- allow user to select from different city lists from this Bootstrap dropdown select -->
-                <ul class="dropdown-menu">
-                  <li>
-                    <a class="dropdown-item" href="#">Search History</a>
-                  </li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li><a class="dropdown-item" href="#">Favourites</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">Australian Capitals</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">New Zealand Cities</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">World Cities</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <!-- display the list of cities here -->
-            <div class="row d-flex justify-content-between align-items-start px-0 mx-0 mt-2">
-              <div class="col list-group pe-1" id="searched-city-list">
-              </div>
-              <!-- the buttons to favourite or delete -->
-              <div class="col" id="city-list-toolbars">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end of Cities search panel -->
-
-      <!-- contains the weather forecast panel -->
-      <div class="col container">
-        <div class="card my-2 mx-0 " id="hero-city-weather-panel">
-          <div class="card-body">
-            <!-- current city name, date, weather icon and description, and a world map icon to link to a map page -->
-            <div class="d-flex justify-content-start align-content-end">
-              <h5 class="card-title" id="hero-city-name"></h5>
-              <!-- insert map image -->
-              <img id="world-map" src="./assets/images/favicon-32x32.png" alt="map link to map tab" class="d-inline-block ms-3">
-            </div>
-            <p class="card-text" id="hero-city-date"></p>
-            <div class="d-flex justify-content-start align-items-center flex-wrap text-center align-content-center">
-              <img src="" class="weather-icon mx-2" alt="" id="hero-city-icon">
-              <p class="fw-bold fs-5 text-success mx-2" id="hero-city-description"></p>
-            </div>
-          </div>
-        </div>
-        <!-- current weather details -->
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item bg-primary bg-opacity-10 hero-weather-details" id="hero-city-temps">
-          </li>
-          <li class="list-group-item bg-primary bg-opacity-10 hero-weather-details" id="hero-city-wind">
-          </li>
-          <li class="list-group-item bg-primary bg-opacity-10 hero-weather-details" id="hero-city-humidity">
-          </li>
-        </ul>
-
-        <!-- 5-day forecast for the hero city -->
-        <div>
-          <h5 class="m-2">5-Day Forecast:</h5>
-        </div>
-        <div id="hero-city-forecast-panel"
-          class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 mt-2 mx-0 mb-2 g-1 custom-small-text">
         </div>
       </div>
     </section>
-    <!-- end of the weather forecast panel -->
-  </div>
 
- <!-- Bootstrap Modal Dialog for error alerts -->
-  <section class="modal" tabindex="-1" id="alert-modal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="alert-modal-title"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p id="alert-modal-text"></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <!-- Footer -->
+    <footer class="text-bg-primary bg-opacity-75 py-3 mt-auto">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4">
+            <p class="mb-0">&copy; 2023 René Malingré</p>
+          </div>
+          <div class="col-md-6">
+            <ul class="list-inline mb-0 text-md-end">
+              <li class="list-inline-item">
+                <a
+                  class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                  href="https://openweathermap.org/"
+                  >Data from OpenWeather</a
+                >
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </footer>
+    <!-- end of Footer -->
 
-  <!-- Footer -->
-  <footer class="text-bg-primary bg-opacity-75 py-3 mt-auto">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-4">
-          <p class="mb-0">&copy; 2023 René Malingré</p>
-        </div>
-        <div class="col-md-6">
-          <ul class="list-inline mb-0 text-md-end">
-            <li class="list-inline-item">
-              <a class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                href="https://openweathermap.org/">Data from OpenWeather</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </footer>
-  <!-- end of Footer -->
-
-  <!-- JavaScript imports -->
-  <!-- Day.js Date Time API
+    <!-- JavaScript imports -->
+    <!-- Day.js Date Time API
       https://day.js.org/
       latest Day.js as of 6 April 2023 -->
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.7/dayjs.min.js"
-    integrity="sha256-EfJOqCcshFS/2TxhArURu3Wn8b/XDA4fbPWKSwZ+1B8=" crossorigin="anonymous"></script>
-  <!-- allow some UTC functions in dayjs -->
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
-  <script>dayjs.extend(window.dayjs_plugin_utc)</script>
-  <!-- jQuery for element selectors, etc -->
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"
-    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
-  <!-- Bootstrap for UI and CSS classes-->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-    crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/dayjs@1.11.7/dayjs.min.js"
+      integrity="sha256-EfJOqCcshFS/2TxhArURu3Wn8b/XDA4fbPWKSwZ+1B8="
+      crossorigin="anonymous"></script>
+    <!-- allow some UTC functions in dayjs -->
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+    <script>
+      dayjs.extend(window.dayjs_plugin_utc);
+    </script>
+    <!-- jQuery for element selectors, etc -->
+    <script
+      src="https://code.jquery.com/jquery-3.6.4.min.js"
+      integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+      crossorigin="anonymous"></script>
+    <!-- Bootstrap for UI and CSS classes-->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"></script>
 
-  <!-- Custom script -->
-  <script src="./assets/js/script.js"></script>
-
-</body>
-
+    <!-- Custom script -->
+    <script src="./assets/js/script.js"></script>
+  </body>
 </html>
