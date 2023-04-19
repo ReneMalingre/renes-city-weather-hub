@@ -137,6 +137,8 @@ class Forecast {
     $(id).attr({
       src: this.getWeatherIconURL(),
       alt: this.description,
+      width: 128,
+      height: 128,
     });
   }
 }
@@ -306,6 +308,8 @@ class City {
               src="${thisForecast.getWeatherIconURL()}"}
               class="five-day-weather-icon"
               alt="${thisForecast.description}"
+              width="64"
+              height="64"
               id="five-day-icon-${i}"
             />
           </div>
