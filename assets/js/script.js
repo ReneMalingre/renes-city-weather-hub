@@ -374,8 +374,6 @@ $(document).ready(async function() {
   // hence why this is the first thing done. T
   // The API call is redundant after the first run, as local storage is then used for the list
   await hydrateCountryList();
-  console.log( (3.7 % 1 === 0));
-  console.log( (3 % 1 === 0));
   // get the city list out of local storage, if it exists
   loadCityList();
 
@@ -1290,7 +1288,6 @@ var worldMapButton = document.getElementById('world-map');
 worldMapButton.addEventListener('click', function() {
   if (selectedCity.latitude && selectedCity.longitude) {
     const url = `https://www.openstreetmap.org/#map=10/${selectedCity.latitude.toFixed(2)}/${selectedCity.longitude.toFixed(2)}`;
-    // console.log(url);
     window.open(url, '_blank');
   };
 });
