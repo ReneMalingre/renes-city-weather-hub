@@ -1,6 +1,6 @@
 # Rene's City Weather Hub
 
-This web application displays the current weather and a five-day forecast of a user-selected city. It allows the user to search for a city in a chosen country, and if it is found the city is saved to a list of recent searches. The user can then click on an item in a selected list to display the weather for that city. Cities can be favourited, which are listed separately. Selectable lists are: Search History, Favourites,  Australian Capital Cities, New Zealand Cities and World Cities,.
+This web application displays the current weather and a five-day forecast of a user-selected city. It allows the user to search for a city in a chosen country, and if it is found the city is saved to a list of recent searches. The user can then click on an item in a selected list to display the weather for that city. Cities can be favourited, which are listed separately. Selectable lists are: Search History, Favourites,  Australian Capital Cities, New Zealand Cities and World Cities.
 
 ## Table of Contents
 
@@ -57,7 +57,7 @@ The application has the following features:
     - OpenWeatherMaps's representative weather icon and description
     - Temperature details
       - Current temperature
-      - Feels like temperature
+      - 'Feels like' temperature
       - Minimum temperature
       - Maximum temperature
     - Humidity
